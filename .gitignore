@@ -1,0 +1,30 @@
+# --- C++ / CMake (SKSEPlugin) -----------------------------------------------
+SKSEPlugin/build/
+SKSEPlugin/out/
+SKSEPlugin/extern/CommonLibSSE-NG/
+*.obj
+*.ilk
+*.pdb
+
+# --- .NET (TwitchBridge) -----------------------------------------------------
+TwitchBridge/**/bin/
+TwitchBridge/**/obj/
+TwitchBridge/TwitchBridge.App/data/
+*.user
+
+# --- Built/packaged mod payload ----------------------------------------------
+Data/SKSE/Plugins/*.dll
+Data/SKSE/Plugins/*.json
+Data/Scripts/*.pex
+
+# --- Secrets -------------------------------------------------------------
+**/appsettings.*.local.json
+.env
+
+# --- Editor / OS ---------------------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.suo
+.DS_Store
+Thumbs.db

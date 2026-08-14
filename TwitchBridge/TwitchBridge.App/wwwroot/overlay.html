@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SkyrimTwitchExpansion Overlay</title>
+  <link rel="stylesheet" href="overlay.css" />
+</head>
+<body>
+  <!-- Add as an OBS Browser Source pointed at http://127.0.0.1:9099/overlay.html
+       with a transparent background; size to your canvas. -->
+  <div id="toast-stack"></div>
+
+  <div id="poll-widget" class="hidden">
+    <div id="poll-title">Chat Vote</div>
+    <div id="poll-candidates"></div>
+    <div id="poll-timer"></div>
+  </div>
+
+  <script src="overlay.js"></script>
+</body>
+</html>
