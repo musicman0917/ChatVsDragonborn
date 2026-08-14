@@ -1,7 +1,10 @@
 # --- C++ / CMake (SKSEPlugin) -----------------------------------------------
 SKSEPlugin/build/
 SKSEPlugin/out/
-SKSEPlugin/extern/CommonLibSSE-NG/
+# NOTE: SKSEPlugin/extern/CommonLibSSE-NG is a git submodule (see README.md
+# "Building"). Do not ignore it here — an ignored path can't be tracked as a
+# submodule gitlink, which breaks `git submodule add`. Its own contents are
+# already excluded by being a separate git repo, not by this file.
 *.obj
 *.ilk
 *.pdb
