@@ -15,16 +15,27 @@ copies it (plus the built plugin DLL) into your target install/MO2 profile.
 
 ## Compiling the Papyrus scripts
 
-`Scripts/Source/*.psc` need to be compiled to `.pex` with the Creation Kit's
-Papyrus Compiler (or Champollion/PapyrusCompiler.exe directly), with
-`Scripts/Source` plus your Skyrim install's own `Data/Scripts/Source` (for the
-base-game scripts referenced, e.g. `Quest`, `Actor`) on the import path.
+Requires the (free) Skyrim Special Edition Creation Kit — install it via Steam
+(Library → Tools → "Skyrim Special Edition: Creation Kit"). It installs
+`PapyrusCompiler.exe` at `<SkyrimInstall>\Papyrus Compiler\PapyrusCompiler.exe`
+and the vanilla base-game script sources at `<SkyrimInstall>\Data\Source\Scripts`
+(note the order — `Source\Scripts`, not `Scripts\Source`; that's Bethesda's own
+install layout and differs from the `Scripts/Source/` convention this repo uses
+for its own scripts). The compiler needs both directories on its import path to
+resolve base-game types like `Quest` and `Actor`.
+
 Compiled `.pex` files are intentionally not committed (see `.gitignore`) —
 build them locally or as part of a release pipeline.
 
+`SkyrimChaosRouter.psc` also calls `JsonUtil` (from the PapyrusUtil dependency
+listed above). The compiler resolves that from PapyrusUtil's compiled
+`JsonUtil.pex` — no source needed — as long as PapyrusUtil is installed into
+this same `Data\` tree first, so `Data\Scripts` (containing its `.pex`) is on
+the import path too:
+
 ```powershell
-PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc -i="Scripts\Source;<SkyrimInstall>\Data\Scripts\Source" -o="Scripts"
-PapyrusCompiler.exe Scripts\Source\ChaosSpawnManager.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Scripts\Source" -o="Scripts"
+PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<SkyrimDataFolder>\Scripts" -o="Scripts"
+PapyrusCompiler.exe Scripts\Source\ChaosSpawnManager.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<SkyrimDataFolder>\Scripts" -o="Scripts"
 ```
 
 ## Wiring up in the Creation Kit
