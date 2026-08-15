@@ -35,10 +35,13 @@ ActorBase Property ChaosDragonActorBase Auto
 ActorBase Property ChaosChickenBase Auto
 { An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
   needs an ActorBase template, not a placed Actor reference. }
-Form Property ChaosCheeseItem Auto
-{ Any placeable Form (e.g. the vanilla FoodCheeseWheel01A, an AlchemyItem)
-  — typed as the generic Form rather than AlchemyItem since PlaceAtMe
-  itself takes a Form and this doesn't need anything more specific. }
+Form[] Property ChaosCheeseItems Auto
+{ Any number of placeable Forms to choose randomly from (e.g. the vanilla
+  FoodCheeseWheel01A/01B/02A, FoodCheeseWedge01, etc.) — typed as an array
+  of the generic Form rather than AlchemyItem since PlaceAtMe itself takes
+  a Form and this doesn't need anything more specific. Fill in as many
+  entries as you like in the Creation Kit; ExecuteSpawnCheese() picks one
+  at random per call. }
 
 ; --- Lifecycle --------------------------------------------------------------
 
@@ -104,7 +107,7 @@ Function RouteCommand(string[] command)
         resultMessage = FormatResult(success, viewer, "stole the Dragonborn's gold!", "remove gold failed (check Gold001 is set in the CK).")
     elseif cmdType == "spawn_cheese"
         success = ExecuteSpawnCheese()
-        resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItem is set in the CK).")
+        resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItems is set in the CK).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
@@ -216,11 +219,16 @@ EndFunction
 
 bool Function ExecuteSpawnCheese()
     Actor player = Game.GetPlayer()
-    if !player || !ChaosCheeseItem
+    if !player || ChaosCheeseItems.Length == 0
+        return false
+    endif
+
+    Form cheeseForm = ChaosCheeseItems[Utility.RandomInt(0, ChaosCheeseItems.Length - 1)]
+    if !cheeseForm
         return false
     endif
 
     int count = Utility.RandomInt(15, 40)
-    player.PlaceAtMe(ChaosCheeseItem, count)
+    player.PlaceAtMe(cheeseForm, count)
     return true
 EndFunction
