@@ -84,6 +84,10 @@ public sealed class TwitchIrcService : BackgroundService
             var action = message["!buy ".Length..].Trim().ToLowerInvariant();
             await HandleBuyCommandAsync(viewer, action);
         }
+        else if (message.StartsWith("!give ", StringComparison.OrdinalIgnoreCase))
+        {
+            await HandleGiveCommandAsync(e.ChatMessage);
+        }
         // !vote 1/2/3 handling lives in PollEngine once wired in (Phase 4 of
         // docs/IMPLEMENTATION_PLAN.md); TwitchIrcService only owns the raw
         // chat parsing entry point.
@@ -138,6 +142,30 @@ public sealed class TwitchIrcService : BackgroundService
         await _skyrim.SendAsync(command);
         await _overlay.BroadcastAsync(new { type = "toast", text = $"{viewer} bought {action}!" });
         _logger.LogInformation("Queued chaos command {Type} from {Viewer}", commandType, viewer);
+    }
+
+    // Mod/broadcaster-only point grant: "!give @username <amount>". Useful
+    // for testing and for rewarding viewers manually until real earn-rate
+    // ticks and sub/bits grants (Phase 1 of docs/IMPLEMENTATION_PLAN.md) are
+    // wired up.
+    private async Task HandleGiveCommandAsync(ChatMessage chatMessage)
+    {
+        if (!chatMessage.IsBroadcaster && !chatMessage.IsModerator)
+        {
+            return; // silently ignore — avoid rewarding chat spam with an error message
+        }
+
+        var parts = chatMessage.Message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length != 3 || !int.TryParse(parts[2], out var amount) || amount <= 0)
+        {
+            SendChatMessage("Usage: !give @username <amount>");
+            return;
+        }
+
+        var target = parts[1].TrimStart('@');
+        await _points.GrantAsync(target, amount);
+        SendChatMessage($"@{chatMessage.Username} gave {amount} points to @{target}!");
+        _logger.LogInformation("{Granter} granted {Amount} points to {Target}", chatMessage.Username, amount, target);
     }
 
     private void SendChatMessage(string text)
