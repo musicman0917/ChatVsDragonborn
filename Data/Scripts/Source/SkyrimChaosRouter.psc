@@ -26,8 +26,12 @@ EncounterZone Property ChaosSpawnZone Auto
   scale into an already-hard fight. }
 MiscObject Property Gold001 Auto
 { Fill in with the vanilla Gold001 form in the Creation Kit. }
-LeveledActor Property ChaosDragonLeveledActor Auto
-{ A dragon leveled list (e.g. a vanilla hostile-dragon LeveledActor). }
+ActorBase Property ChaosDragonActorBase Auto
+{ An NPC_ record for a hostile dragon (e.g. the vanilla EncDragon01Fire).
+  Not a LeveledActor — those need a different placement function
+  (PlaceAtMe) that doesn't accept an EncounterZone, and are also much
+  harder to locate/assign in the Creation Kit's object pickers than a
+  plain ActorBase, so a concrete dragon template is used directly instead. }
 ActorBase Property ChaosChickenBase Auto
 { An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
   needs an ActorBase template, not a placed Actor reference. }
@@ -124,18 +128,11 @@ EndFunction
 
 bool Function ExecuteSpawnDragon()
     Actor player = Game.GetPlayer()
-    if !player || !ChaosDragonLeveledActor
+    if !player || !ChaosDragonActorBase
         return false
     endif
 
-    ; ChaosDragonLeveledActor is a LeveledActor, not an ActorBase, so this
-    ; goes through PlaceAtMe (takes any Form and resolves leveled lists)
-    ; rather than PlaceActorAtMe (requires a concrete ActorBase template).
-    ;
-    ; NOTE: there is no Papyrus-native way to assign an EncounterZone to a
-    ; runtime-placed actor, so ChaosSpawnZone isn't used here yet — would
-    ; need a native STE_Native helper (see docs/IMPLEMENTATION_PLAN.md).
-    Actor dragon = player.PlaceAtMe(ChaosDragonLeveledActor) as Actor
+    Actor dragon = player.PlaceActorAtMe(ChaosDragonActorBase, 4, ChaosSpawnZone)
     return dragon != None
 EndFunction
 

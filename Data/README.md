@@ -63,9 +63,15 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    save.
 2. Attach `SkyrimChaosRouter.psc` to it. Save again.
 3. Reopen the quest, fill in its properties: `ChaosSpawnZone` (optional —
-   safe to leave unset), `Gold001`, `ChaosDragonLeveledActor` (a
-   `LeveledActor`, e.g. a dragon leveled list), and `ChaosChickenBase` (an
-   `ActorBase` NPC_ record, e.g. the vanilla "Chicken" template). The player
+   safe to leave unset), `Gold001`, `ChaosDragonActorBase` (an `ActorBase`
+   NPC_ record for a hostile dragon, e.g. the vanilla `EncDragon01Fire`),
+   and `ChaosChickenBase` (an `ActorBase` NPC_ record, e.g. the vanilla
+   `EncChicken`). Both actor properties are deliberately concrete
+   `ActorBase` templates rather than `LeveledActor` lists — `LeveledActor`
+   forms are both harder to place via `PlaceActorAtMe` (which needs a
+   concrete `ActorBase`, not a leveled list — `PlaceAtMe` handles leveled
+   lists but doesn't accept an `EncounterZone`) and, in practice, much
+   harder to locate and assign through the CK's object pickers. The player
    reference itself comes from `Game.GetPlayer()` in-script, no property
    needed. Save again.
 
