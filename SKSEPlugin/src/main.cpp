@@ -32,30 +32,6 @@ namespace
         spdlog::set_pattern("[%H:%M:%S] [%l] %v"s);
     }
 
-    // Pushes deferred work (engine-event polling, update notifications) that
-    // has to happen on the main/game thread — the only thread allowed to
-    // touch RE:: types (see docs/ARCHITECTURE.md §3). SKSE's task queue has
-    // no built-in "every frame" hook, so this task re-arms itself at the end
-    // of each run, giving a lightweight perpetual per-frame tick.
-    void OnMainThreadTick()
-    {
-        STE::Hooks::PollGameHour();
-
-        if (const auto newVersion = STE::Update::TakePendingNotification()) {
-            RE::DebugNotification("SkyrimTwitchExpansion update available!");
-            logger::info("Notified player of update to v{}", *newVersion);
-        }
-
-        // Note: SkyrimChaosRouter.psc pulls inbound commands itself via
-        // STE_Native.PollNextCommand(), so nothing to drain here for the
-        // inbound queue — this tick only handles work the C++ side owns
-        // directly (engine-event polling, update notifications, etc).
-
-        if (auto* taskInterface = SKSE::GetTaskInterface()) {
-            taskInterface->AddTask(&OnMainThreadTick);
-        }
-    }
-
     void MessageHandler(SKSE::MessagingInterface::Message* message)
     {
         switch (message->type) {
@@ -66,9 +42,21 @@ namespace
                 STE::Bridge::IPCServer::Get().Start();
                 STE::Update::CheckForUpdatesAsync(kGitHubOwner, kGitHubRepo, kPluginVersion);
 
-                if (auto* taskInterface = SKSE::GetTaskInterface()) {
-                    taskInterface->AddTask(&OnMainThreadTick);
-                }
+                // NOTE: engine-hour polling (Hooks::PollGameHour) and surfacing
+                // update notifications (Update::TakePendingNotification) both
+                // need to run repeatedly on the main thread, but they're
+                // deliberately not wired up yet. The obvious approach —
+                // SKSE::GetTaskInterface()->AddTask() re-adding itself at the
+                // end of each run to fake a per-frame tick — hung the game at
+                // the main menu the one time it was tried live: AddTask's
+                // queue-draining behavior when a task re-adds itself was never
+                // actually verified against SKSE's source, and it's plausible
+                // newly-added tasks get processed within the same drain pass
+                // rather than deferred to the next frame, producing a tight
+                // synchronous loop with no chance to render. A real per-frame
+                // hook (e.g. via Xbyak/trampoline on the main update loop —
+                // see SKSE_SUPPORT_XBYAK in CMakePresets.json, currently off)
+                // is needed before either of these features comes back.
 
                 logger::info("kDataLoaded: subsystems started");
                 break;

@@ -80,12 +80,24 @@ See `ARCHITECTURE.md` for the data-flow diagram and threading rules referenced b
 
 ## Phase 7 — Native Engine Hooks (CommonLibSSE)
 
-- [ ] `Hooks/EventSink` — subscribe to `TESHitEvent` (OnPlayerHit), spell-cast event
-      source, and a `GameHour`-interval poll, forwarding notable events outward through
-      the pipe so chat can react to them.
-- [ ] Address-library-only (`v.UsesAddressLibrary(true)`) — no hardcoded SE/AE offsets,
+- [x] `Hooks/EventSink` — subscribe to `TESHitEvent` (OnPlayerHit) and the spell-cast
+      event source. Confirmed live: engine event sinks register successfully on a real
+      game launch.
+- [ ] A genuine per-frame hook is still needed to drive `Hooks::PollGameHour()` and
+      `Update::TakePendingNotification()` — both were originally wired through a
+      self-rearming `SKSE::GetTaskInterface()->AddTask()` task (re-adding itself each run
+      to fake a recurring tick), which **hung the game at the main menu** the one time it
+      was tested live. `AddTask`'s actual queue-draining behavior when a task re-adds
+      itself was never verified against SKSE's source before shipping it, and it's
+      plausible newly-added tasks get processed within the same drain pass rather than
+      deferred to the next frame — a tight synchronous loop with no chance to render.
+      Removed for now (see `main.cpp`); replace with a real per-frame hook (e.g. an
+      Xbyak/trampoline hook on the main update loop — `SKSE_SUPPORT_XBYAK` in
+      `CMakePresets.json` is currently `OFF`) before restoring either feature.
+- [x] Address-library-only (`v.UsesAddressLibrary(true)`) — no hardcoded SE/AE offsets,
       so the plugin stays compatible across Skyrim runtime patches without recompiling
-      per-version.
+      per-version. Confirmed live: loads correctly against game version 1.6.1170.0 with
+      only Address Library's `versionlib-*.bin` on disk, no hardcoded offsets.
 
 ## Phase 8 — Update Checker
 
