@@ -18,6 +18,11 @@ EncounterZone Property ChaosSpawnZone Auto
   scale into an already-hard fight. }
 MiscObject Property Gold001 Auto
 { Fill in with the vanilla Gold001 form in the Creation Kit. }
+ChaosSpawnManager Property SpawnManager Auto
+{ Fill in with the ChaosSpawnManager instance attached to this or another
+  quest in the Creation Kit — its spawn functions are instance methods, not
+  global, so they need a live Property reference rather than a bare script
+  name call. }
 
 ; --- Lifecycle --------------------------------------------------------------
 
@@ -50,38 +55,42 @@ Function RouteCommand(string[] command)
     string argsJson = command[4]
 
     bool success = false
-    string message = ""
+    ; Named resultMessage, not "message" — that collides with Skyrim's own
+    ; Message script/type (Papyrus identifiers are case-insensitive) and the
+    ; compiler rejects it as "cannot name a variable... the same as a known
+    ; type or script".
+    string resultMessage = ""
 
     if cmdType == "ragdoll"
         success = ExecuteRagdoll()
-        message = viewer + " ragdolled the Dragonborn!"
+        resultMessage = viewer + " ragdolled the Dragonborn!"
     elseif cmdType == "earthquake"
         success = ExecuteEarthquake()
-        message = viewer + " triggered an earthquake!"
+        resultMessage = viewer + " triggered an earthquake!"
     elseif cmdType == "spawn_dragon"
         success = ExecuteSpawnDragon()
-        message = viewer + " summoned a dragon!"
+        resultMessage = viewer + " summoned a dragon!"
     elseif cmdType == "spawn_chickens"
         success = ExecuteSpawnChickens(argsJson)
-        message = viewer + " unleashed the chicken swarm!"
+        resultMessage = viewer + " unleashed the chicken swarm!"
     elseif cmdType == "invert_controls"
         success = ExecuteInvertControls(argsJson)
-        message = viewer + " inverted your controls!"
+        resultMessage = viewer + " inverted your controls!"
     elseif cmdType == "low_gravity"
         success = ExecuteLowGravity(argsJson)
-        message = viewer + " turned on low gravity!"
+        resultMessage = viewer + " turned on low gravity!"
     elseif cmdType == "add_gold"
         success = ExecuteGoldDelta(argsJson, true)
-        message = viewer + " gave the Dragonborn gold!"
+        resultMessage = viewer + " gave the Dragonborn gold!"
     elseif cmdType == "remove_gold"
         success = ExecuteGoldDelta(argsJson, false)
-        message = viewer + " stole the Dragonborn's gold!"
+        resultMessage = viewer + " stole the Dragonborn's gold!"
     else
-        message = "Unknown command type: " + cmdType
+        resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
     endif
 
-    STE_Native.ReportCommandResult(id, success, message)
+    STE_Native.ReportCommandResult(id, success, resultMessage)
 EndFunction
 
 ; --- Effect handlers ---------------------------------------------------------
@@ -106,13 +115,13 @@ bool Function ExecuteSpawnDragon()
     ; Actual leveled-actor selection + safe-spawn-point logic lives in a
     ; dedicated ChaosSpawnManager script (Phase 3 of docs/IMPLEMENTATION_PLAN.md);
     ; this stub shows the call shape the router expects handlers to expose.
-    Actor spawned = ChaosSpawnManager.SpawnHostileDragon(PlayerRef, ChaosSpawnZone)
+    Actor spawned = SpawnManager.SpawnHostileDragon(PlayerRef, ChaosSpawnZone)
     return spawned != None
 EndFunction
 
 bool Function ExecuteSpawnChickens(string argsJson)
     int count = JsonUtil.JsonInt(argsJson, "count", 5)
-    return ChaosSpawnManager.SpawnChickenSwarm(PlayerRef, count) > 0
+    return SpawnManager.SpawnChickenSwarm(PlayerRef, count) > 0
 EndFunction
 
 bool Function ExecuteInvertControls(string argsJson)
