@@ -46,6 +46,33 @@ public sealed class TwitchIrcService : BackgroundService
         _points = points;
         _skyrim = skyrim;
         _overlay = overlay;
+
+        // Surfaces whether a queued command actually succeeded once Papyrus
+        // executed it — previously the only visible signal was "Queued
+        // chaos command X", with no way to tell success from silent
+        // failure without watching the game itself.
+        _skyrim.EventReceived += OnSkyrimEventReceived;
+    }
+
+    private void OnSkyrimEventReceived(OutboundEvent evt)
+    {
+        switch (evt.Kind)
+        {
+            case "command_result":
+                if (evt.Success)
+                {
+                    _logger.LogInformation("Command {Id} succeeded: {Message}", evt.Id, evt.Message);
+                }
+                else
+                {
+                    _logger.LogWarning("Command {Id} FAILED: {Message}", evt.Id, evt.Message);
+                }
+                SendChatMessage(evt.Message);
+                break;
+            case "engine_event":
+                _logger.LogInformation("Engine event: {Message}", evt.Message);
+                break;
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

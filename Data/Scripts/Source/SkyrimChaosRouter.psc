@@ -76,34 +76,45 @@ Function RouteCommand(string[] command)
 
     if cmdType == "ragdoll"
         success = ExecuteRagdoll()
-        resultMessage = viewer + " ragdolled the Dragonborn!"
+        resultMessage = FormatResult(success, viewer, "ragdolled the Dragonborn!", "ragdoll failed (no player reference).")
     elseif cmdType == "earthquake"
         success = ExecuteEarthquake()
-        resultMessage = viewer + " triggered an earthquake!"
+        resultMessage = FormatResult(success, viewer, "triggered an earthquake!", "earthquake failed (no player reference).")
     elseif cmdType == "spawn_dragon"
         success = ExecuteSpawnDragon()
-        resultMessage = viewer + " summoned a dragon!"
+        resultMessage = FormatResult(success, viewer, "summoned a dragon!", "dragon spawn failed (check ChaosDragonActorBase is set in the CK, and that this save's quest instance picked it up).")
     elseif cmdType == "spawn_chickens"
         success = ExecuteSpawnChickens()
-        resultMessage = viewer + " unleashed the chicken swarm!"
+        resultMessage = FormatResult(success, viewer, "unleashed the chicken swarm!", "chicken spawn failed (check ChaosChickenBase is set in the CK, and that this save's quest instance picked it up).")
     elseif cmdType == "invert_controls"
         success = ExecuteInvertControls()
-        resultMessage = viewer + " inverted your controls!"
+        resultMessage = FormatResult(success, viewer, "inverted your controls!", "invert controls failed.")
     elseif cmdType == "low_gravity"
         success = ExecuteLowGravity()
-        resultMessage = viewer + " turned on low gravity!"
+        resultMessage = FormatResult(success, viewer, "turned on low gravity!", "low gravity failed.")
     elseif cmdType == "add_gold"
         success = ExecuteGoldDelta(true)
-        resultMessage = viewer + " gave the Dragonborn gold!"
+        resultMessage = FormatResult(success, viewer, "gave the Dragonborn gold!", "add gold failed (check Gold001 is set in the CK).")
     elseif cmdType == "remove_gold"
         success = ExecuteGoldDelta(false)
-        resultMessage = viewer + " stole the Dragonborn's gold!"
+        resultMessage = FormatResult(success, viewer, "stole the Dragonborn's gold!", "remove gold failed (check Gold001 is set in the CK).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
     endif
 
     STE_Native.ReportCommandResult(id, success, resultMessage)
+EndFunction
+
+; Builds a result message that actually reflects whether the effect
+; succeeded — previously this always used the success-worded text
+; regardless of the `success` bool passed alongside it, so a failed
+; command still claimed to have worked.
+string Function FormatResult(bool success, string viewer, string successText, string failureText)
+    if success
+        return viewer + " " + successText
+    endif
+    return viewer + "'s command failed: " + failureText
 EndFunction
 
 ; --- Effect handlers ---------------------------------------------------------
