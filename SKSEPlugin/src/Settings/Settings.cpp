@@ -18,6 +18,8 @@ namespace STE
                 { "chaos.invert_controls.duration_seconds", "20" },
                 { "chaos.low_gravity.price", "400" },
                 { "chaos.low_gravity.duration_seconds", "30" },
+                { "chaos.add_gold.price", "50" },
+                { "chaos.remove_gold.price", "150" },
                 { "poll.interval_minutes", "15" },
                 { "poll.duration_seconds", "60" },
             });
