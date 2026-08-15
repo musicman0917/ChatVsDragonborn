@@ -34,7 +34,13 @@ set(SOURCES
     src/Update/UpdateChecker.cpp
 )
 
-add_commonlibsse_plugin(${PROJECT_NAME} SOURCES ${SOURCES})
+# NOTE: CommonLibSSE-NG's own `add_commonlibsse_plugin` convenience macro is
+# only available when the library is consumed as an installed package (via
+# find_package). We build it in-tree via add_subdirectory above, so we set
+# up the plugin target the plain, standard-CMake way instead.
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "SkyrimTwitchExpansion")
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
@@ -43,6 +49,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE src/PCH.h)
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
+        CommonLibSSE::CommonLibSSE
         nlohmann_json::nlohmann_json
         spdlog::spdlog
         winhttp
