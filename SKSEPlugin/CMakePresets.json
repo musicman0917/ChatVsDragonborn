@@ -15,7 +15,8 @@
       "inherits": ["vcpkg"],
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "SKSE_SUPPORT_XBYAK": "ON"
+        "SKSE_SUPPORT_XBYAK": "ON",
+        "BUILD_TESTS": "OFF"
       }
     }
   ],
