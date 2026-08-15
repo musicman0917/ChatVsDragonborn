@@ -10,25 +10,42 @@ namespace STE::Papyrus
     {
         constexpr auto kPapyrusObjectName = "STE_Native";
 
+        // Holds the args payload of whichever ChaosCommand PollNextCommand
+        // most recently popped, so GetCommandArgInt can hand Papyrus an
+        // already-typed int without Papyrus ever touching raw JSON itself.
+        // Only ever read/written from the Papyrus VM tick (main thread), so
+        // no extra locking is needed beyond what MessageQueue already does.
+        json::json g_lastCommandArgs = json::json::object();
+
         // SkyrimChaosRouter.psc polls this on a short RegisterForSingleUpdate
         // loop. Returns an empty array when nothing is queued, otherwise
-        // [id, type, viewer, priceAsString, argsAsJson] — Papyrus routes on
-        // `type` and, if a handler needs more detail, re-parses `argsAsJson`
-        // via PapyrusUtil's JsonUtil (already a dependency for MCM storage).
+        // [id, type, viewer, priceAsString] — Papyrus routes on `type` and,
+        // if a handler needs a numeric arg, calls GetCommandArgInt below
+        // rather than parsing JSON itself.
         std::vector<std::string> PollNextCommand(RE::StaticFunctionTag*)
         {
             auto cmd = Bridge::Queues::Get().inbound.PopOne();
             if (!cmd) {
+                g_lastCommandArgs = json::json::object();
                 return {};
             }
+
+            g_lastCommandArgs = cmd->args;
 
             return {
                 cmd->id,
                 cmd->type,
                 cmd->viewer,
                 std::to_string(cmd->price),
-                cmd->args.dump(),
             };
+        }
+
+        // Reads a single integer arg out of the most recently popped
+        // command's payload (e.g. "count" for spawn_chickens, "amount" for
+        // add_gold/remove_gold).
+        int GetCommandArgInt(RE::StaticFunctionTag*, std::string key, int missingValue)
+        {
+            return g_lastCommandArgs.value(key, missingValue);
         }
 
         // Called by the router after a handler finishes, so TwitchBridge can
@@ -55,14 +72,21 @@ namespace STE::Papyrus
         {
             Settings::Get().SetString(key, value);
         }
+
+        int GetSettingInt(RE::StaticFunctionTag*, std::string key, int missingValue)
+        {
+            return Settings::Get().GetInt(key, missingValue);
+        }
     }
 
     bool Register(RE::BSScript::IVirtualMachine* vm)
     {
         vm->RegisterFunction("PollNextCommand", kPapyrusObjectName, PollNextCommand);
+        vm->RegisterFunction("GetCommandArgInt", kPapyrusObjectName, GetCommandArgInt);
         vm->RegisterFunction("ReportCommandResult", kPapyrusObjectName, ReportCommandResult);
         vm->RegisterFunction("GetSetting", kPapyrusObjectName, GetSetting);
         vm->RegisterFunction("SetSetting", kPapyrusObjectName, SetSetting);
+        vm->RegisterFunction("GetSettingInt", kPapyrusObjectName, GetSettingInt);
         return true;
     }
 }

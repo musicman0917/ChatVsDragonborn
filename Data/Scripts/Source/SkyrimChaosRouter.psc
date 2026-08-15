@@ -47,12 +47,13 @@ EndEvent
 ;                       "remove_gold" | "low_gravity")
 ;   [2] viewer        (Twitch display name, for logging/messages only)
 ;   [3] price         (points spent, as string; informational here)
-;   [4] argsJson      (effect-specific payload, parsed via JsonUtil on demand)
+; Any numeric arg a handler needs (chicken count, gold amount) comes from
+; STE_Native.GetCommandArgInt(key, default) instead of a JSON blob here —
+; the plugin already parsed it, so Papyrus never touches raw JSON.
 Function RouteCommand(string[] command)
     string id = command[0]
     string cmdType = command[1]
     string viewer = command[2]
-    string argsJson = command[4]
 
     bool success = false
     ; Named resultMessage, not "message" — that collides with Skyrim's own
@@ -71,19 +72,19 @@ Function RouteCommand(string[] command)
         success = ExecuteSpawnDragon()
         resultMessage = viewer + " summoned a dragon!"
     elseif cmdType == "spawn_chickens"
-        success = ExecuteSpawnChickens(argsJson)
+        success = ExecuteSpawnChickens()
         resultMessage = viewer + " unleashed the chicken swarm!"
     elseif cmdType == "invert_controls"
-        success = ExecuteInvertControls(argsJson)
+        success = ExecuteInvertControls()
         resultMessage = viewer + " inverted your controls!"
     elseif cmdType == "low_gravity"
-        success = ExecuteLowGravity(argsJson)
+        success = ExecuteLowGravity()
         resultMessage = viewer + " turned on low gravity!"
     elseif cmdType == "add_gold"
-        success = ExecuteGoldDelta(argsJson, true)
+        success = ExecuteGoldDelta(true)
         resultMessage = viewer + " gave the Dragonborn gold!"
     elseif cmdType == "remove_gold"
-        success = ExecuteGoldDelta(argsJson, false)
+        success = ExecuteGoldDelta(false)
         resultMessage = viewer + " stole the Dragonborn's gold!"
     else
         resultMessage = "Unknown command type: " + cmdType
@@ -119,30 +120,30 @@ bool Function ExecuteSpawnDragon()
     return spawned != None
 EndFunction
 
-bool Function ExecuteSpawnChickens(string argsJson)
-    int count = JsonUtil.JsonInt(argsJson, "count", 5)
+bool Function ExecuteSpawnChickens()
+    int count = STE_Native.GetCommandArgInt("count", 5)
     return SpawnManager.SpawnChickenSwarm(PlayerRef, count) > 0
 EndFunction
 
-bool Function ExecuteInvertControls(string argsJson)
-    int durationSeconds = JsonUtil.JsonIntFromString(STE_Native.GetSetting("chaos.invert_controls.duration_seconds"), 20)
+bool Function ExecuteInvertControls()
+    int durationSeconds = STE_Native.GetSettingInt("chaos.invert_controls.duration_seconds", 20)
     ; Input remap itself is native (Papyrus can't hook input directly) — this
     ; just tells the plugin to flip the flag and auto-revert after duration.
     STE_Native.SetSetting("runtime.invert_controls.active_until", (Utility.GetCurrentRealTime() + durationSeconds) as String)
     return true
 EndFunction
 
-bool Function ExecuteLowGravity(string argsJson)
-    int durationSeconds = JsonUtil.JsonIntFromString(STE_Native.GetSetting("chaos.low_gravity.duration_seconds"), 30)
+bool Function ExecuteLowGravity()
+    int durationSeconds = STE_Native.GetSettingInt("chaos.low_gravity.duration_seconds", 30)
     STE_Native.SetSetting("runtime.low_gravity.active_until", (Utility.GetCurrentRealTime() + durationSeconds) as String)
     return true
 EndFunction
 
-bool Function ExecuteGoldDelta(string argsJson, bool isAdd)
+bool Function ExecuteGoldDelta(bool isAdd)
     if !PlayerRef
         return false
     endif
-    int amount = JsonUtil.JsonInt(argsJson, "amount", 100)
+    int amount = STE_Native.GetCommandArgInt("amount", 100)
     if !isAdd
         amount = -amount
     endif

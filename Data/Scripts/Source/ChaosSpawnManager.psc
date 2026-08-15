@@ -11,7 +11,9 @@ Scriptname ChaosSpawnManager extends Quest
 }
 
 LeveledActor Property ChaosDragonLeveledActor Auto
-Actor Property ChaosChickenBase Auto
+ActorBase Property ChaosChickenBase Auto
+{ An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
+  needs an ActorBase template, not a placed Actor reference. }
 
 Actor Function SpawnHostileDragon(Actor akPlayer, EncounterZone akZone)
     if !akPlayer || !ChaosDragonLeveledActor
@@ -23,11 +25,16 @@ Actor Function SpawnHostileDragon(Actor akPlayer, EncounterZone akZone)
         return None
     endif
 
+    ; ChaosDragonLeveledActor is a LeveledActor, not an ActorBase, so this
+    ; has to go through PlaceAtMe (which takes any Form and resolves leveled
+    ; lists) rather than PlaceActorAtMe (which requires a concrete
+    ; ActorBase template and can't accept a leveled list).
+    ;
     ; NOTE: there is no Papyrus-native way to assign an EncounterZone to a
     ; runtime-placed actor, so akZone is accepted here for a future native
     ; STE_Native helper (see docs/IMPLEMENTATION_PLAN.md) rather than used
     ; directly yet.
-    Actor dragon = spawnMarker.PlaceActorAtMe(ChaosDragonLeveledActor) as Actor
+    Actor dragon = spawnMarker.PlaceAtMe(ChaosDragonLeveledActor) as Actor
     return dragon
 EndFunction
 

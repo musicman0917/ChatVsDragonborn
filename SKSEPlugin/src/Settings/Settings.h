@@ -22,6 +22,11 @@ namespace STE
         [[nodiscard]] std::string GetString(const std::string& key, std::string defaultValue = "") const;
         void SetString(const std::string& key, const std::string& value);
 
+        // Settings are stored as strings (see GetString) so MCM/JSON edits
+        // stay simple; this just parses that string for callers (Papyrus,
+        // via ChaosNativeFunctions::GetSettingInt) that want an int.
+        [[nodiscard]] int GetInt(const std::string& key, int defaultValue = 0) const;
+
     private:
         Settings() = default;
 

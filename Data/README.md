@@ -8,10 +8,14 @@ copies it (plus the built plugin DLL) into your target install/MO2 profile.
 - **SKSE** (Skyrim Script Extender) — required; hosts `SkyrimTwitchExpansion.dll`.
 - **Address Library for SKSE Plugins** — required; the plugin is built with
   `UsesAddressLibrary(true)` so it never hardcodes per-runtime-version offsets.
-- **PapyrusUtil** — provides `JsonUtil`, used by `SkyrimChaosRouter.psc` to read
-  effect-specific args out of the JSON payload the SKSE plugin hands it.
 - **MCM Helper** (or SkyUI's MCM, if targeting pre-AE) — renders
   `MCM/Config/SkyrimTwitchExpansion/config.json` as the in-game settings menu.
+
+No third-party Papyrus script library (e.g. PapyrusUtil) is required — any
+value the SKSE plugin needs to hand Papyrus (a command's numeric args, a
+setting) comes through a typed native function
+(`STE_Native.GetCommandArgInt`, `STE_Native.GetSettingInt`) instead of a raw
+JSON string Papyrus would otherwise need a JSON library to parse.
 
 ## Compiling the Papyrus scripts
 
@@ -24,18 +28,22 @@ install layout and differs from the `Scripts/Source/` convention this repo uses
 for its own scripts). The compiler needs both directories on its import path to
 resolve base-game types like `Quest` and `Actor`.
 
+The vanilla scripts ship inside `<SkyrimInstall>\Data\Scripts.zip` — extract it
+directly into `<SkyrimInstall>\Data\` (not into `Data\Source\Scripts\`; the zip
+already contains that path internally, so extracting it a second folder deeper
+just nests it). You'll also need
+`<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg` on the compiler's
+`-flags` argument explicitly — it isn't auto-discovered from the `-i` import
+list, and omitting it produces a flood of spurious "Unknown user flag Hidden"
+warnings that cascade into false "is not a function" errors on real functions.
+
 Compiled `.pex` files are intentionally not committed (see `.gitignore`) —
 build them locally or as part of a release pipeline.
 
-`SkyrimChaosRouter.psc` also calls `JsonUtil` (from the PapyrusUtil dependency
-listed above). The compiler resolves that from PapyrusUtil's compiled
-`JsonUtil.pex` — no source needed — as long as PapyrusUtil is installed into
-this same `Data\` tree first, so `Data\Scripts` (containing its `.pex`) is on
-the import path too:
-
 ```powershell
-PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<SkyrimDataFolder>\Scripts" -o="Scripts"
-PapyrusCompiler.exe Scripts\Source\ChaosSpawnManager.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<SkyrimDataFolder>\Scripts" -o="Scripts"
+PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\ChaosSpawnManager.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
 ```
 
 ## Wiring up in the Creation Kit
@@ -43,8 +51,13 @@ PapyrusCompiler.exe Scripts\Source\ChaosSpawnManager.psc  -i="Scripts\Source;<Sk
 1. Create a new Quest (e.g. `STE_ChaosRouterQuest`), start-game-enabled, no
    quest stages needed.
 2. Attach `SkyrimChaosRouter.psc` to it; fill in the `PlayerRef`,
-   `ChaosSpawnZone`, and `Gold001` properties.
+   `ChaosSpawnZone`, `Gold001`, and `SpawnManager` properties (the last one
+   points at the `ChaosSpawnManager` instance from step 3 — its spawn
+   functions are instance methods, so the router needs a live reference to
+   call them through).
 3. Create a second Quest (or reuse the same one) for `ChaosSpawnManager.psc`;
-   fill in `ChaosDragonLeveledActor` and `ChaosChickenBase`.
+   fill in `ChaosDragonLeveledActor` (a `LeveledActor`, e.g. a dragon leveled
+   list) and `ChaosChickenBase` (an `ActorBase` NPC_ record, e.g. the vanilla
+   "Chicken" template).
 4. Build a plugin (`.esp`/`.esl`) containing both quests and save it alongside
    this `Data/` tree.

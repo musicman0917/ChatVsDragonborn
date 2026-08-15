@@ -69,4 +69,17 @@ namespace STE
         _values[key] = value;
         Save();
     }
+
+    int Settings::GetInt(const std::string& key, int defaultValue) const
+    {
+        const auto raw = GetString(key);
+        if (raw.empty()) {
+            return defaultValue;
+        }
+        try {
+            return std::stoi(raw);
+        } catch (const std::exception&) {
+            return defaultValue;
+        }
+    }
 }
