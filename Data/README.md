@@ -42,24 +42,37 @@ build them locally or as part of a release pipeline.
 
 ```powershell
 PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-PapyrusCompiler.exe Scripts\Source\ChaosSpawnManager.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
 PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+```
+
+The compiled `.pex` files also need to be copied into
+`<SkyrimInstall>\Data\Scripts\` (not just this repo's own `Data\Scripts\`) —
+that's the folder the Creation Kit and the game itself actually read from.
+Recopy after every recompile:
+
+```powershell
+Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
 ```
 
 ## Wiring up in the Creation Kit
 
 1. Create a new Quest (e.g. `STE_ChaosRouterQuest`), start-game-enabled, no
-   quest stages needed.
-2. Attach `SkyrimChaosRouter.psc` to it; fill in the `ChaosSpawnZone`
-   (optional — safe to leave unset), `Gold001`, and `SpawnManager`
-   properties (the last one points at the `ChaosSpawnManager` instance from
-   step 3 — its spawn functions are instance methods, so the router needs a
-   live reference to call them through; the player reference itself comes
-   from `Game.GetPlayer()` in-script, no property needed).
-3. Attach `ChaosSpawnManager.psc` to the same quest (a Form can have more
-   than one script attached — this lets `SpawnManager` above just point at
-   "this quest"); fill in `ChaosDragonLeveledActor` (a `LeveledActor`, e.g. a
-   dragon leveled list) and `ChaosChickenBase` (an `ActorBase` NPC_ record,
-   e.g. the vanilla "Chicken" template).
+   quest stages needed. **Save the plugin (File → Save As) right after
+   creating it, before attaching scripts or setting properties** — the CK is
+   prone to crashing, and nothing you do is persisted until you explicitly
+   save.
+2. Attach `SkyrimChaosRouter.psc` to it. Save again.
+3. Reopen the quest, fill in its properties: `ChaosSpawnZone` (optional —
+   safe to leave unset), `Gold001`, `ChaosDragonLeveledActor` (a
+   `LeveledActor`, e.g. a dragon leveled list), and `ChaosChickenBase` (an
+   `ActorBase` NPC_ record, e.g. the vanilla "Chicken" template). The player
+   reference itself comes from `Game.GetPlayer()` in-script, no property
+   needed. Save again.
+
+   All the spawn logic lives directly on `SkyrimChaosRouter.psc` rather than
+   a separate script — the CK's property picker has no way to point a
+   script-type Property at a bare Quest form (even the same quest doing the
+   pointing), so a second script needing a live reference back to this one
+   had no way to be wired up through the GUI.
 4. Build a plugin (`.esp`/`.esl`) containing the quest and save it alongside
    this `Data/` tree.

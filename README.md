@@ -35,7 +35,7 @@ SKSEPlugin/            C++ SKSE plugin (CommonLibSSE NG)
   src/Update/            GitHub Releases update checker
 Data/                   Mod payload — copy this into a Skyrim Data\ folder
   SKSE/Plugins/          Compiled plugin + boot-time .ini land here
-  Scripts/Source/        Papyrus sources (SkyrimChaosRouter.psc, ChaosSpawnManager.psc)
+  Scripts/Source/        Papyrus sources (SkyrimChaosRouter.psc, STE_Native.psc)
   MCM/Config/            MCM Helper menu definition
 TwitchBridge/            C# .NET companion app (Twitch IRC/Helix + overlay server)
   TwitchBridge.App/Services/   IRC, Helix, points economy, overlay HTTP, Skyrim IPC client

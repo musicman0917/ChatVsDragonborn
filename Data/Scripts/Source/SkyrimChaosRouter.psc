@@ -4,6 +4,15 @@ Scriptname SkyrimChaosRouter extends Quest
   its effect handler. Attach this script to a persistent, always-running
   quest (start-game-enabled, no start-up stage). See docs/ARCHITECTURE.md
   step 5-6 for the full pipe -> native -> Papyrus -> engine call chain.
+
+  Spawn logic (ExecuteSpawnDragon/ExecuteSpawnChickens) lives directly on
+  this script rather than a separate ChaosSpawnManager script: the Creation
+  Kit has no GUI way to point a script-type Property at a bare Quest form
+  (the "Pick Object" picker only lists placed object references, not Quest
+  forms — even the quest carrying the target script itself), so a second
+  script needing a live reference back to this one had no way to be wired
+  up. Since nothing else needs these functions independently, keeping them
+  here avoids the problem entirely.
 }
 
 ; --- Tunables -------------------------------------------------------------
@@ -17,11 +26,11 @@ EncounterZone Property ChaosSpawnZone Auto
   scale into an already-hard fight. }
 MiscObject Property Gold001 Auto
 { Fill in with the vanilla Gold001 form in the Creation Kit. }
-ChaosSpawnManager Property SpawnManager Auto
-{ Fill in with the ChaosSpawnManager instance attached to this or another
-  quest in the Creation Kit — its spawn functions are instance methods, not
-  global, so they need a live Property reference rather than a bare script
-  name call. }
+LeveledActor Property ChaosDragonLeveledActor Auto
+{ A dragon leveled list (e.g. a vanilla hostile-dragon LeveledActor). }
+ActorBase Property ChaosChickenBase Auto
+{ An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
+  needs an ActorBase template, not a placed Actor reference. }
 
 ; --- Lifecycle --------------------------------------------------------------
 
@@ -114,16 +123,38 @@ bool Function ExecuteEarthquake()
 EndFunction
 
 bool Function ExecuteSpawnDragon()
-    ; Actual leveled-actor selection + safe-spawn-point logic lives in a
-    ; dedicated ChaosSpawnManager script (Phase 3 of docs/IMPLEMENTATION_PLAN.md);
-    ; this stub shows the call shape the router expects handlers to expose.
-    Actor spawned = SpawnManager.SpawnHostileDragon(Game.GetPlayer(), ChaosSpawnZone)
-    return spawned != None
+    Actor player = Game.GetPlayer()
+    if !player || !ChaosDragonLeveledActor
+        return false
+    endif
+
+    ; ChaosDragonLeveledActor is a LeveledActor, not an ActorBase, so this
+    ; goes through PlaceAtMe (takes any Form and resolves leveled lists)
+    ; rather than PlaceActorAtMe (requires a concrete ActorBase template).
+    ;
+    ; NOTE: there is no Papyrus-native way to assign an EncounterZone to a
+    ; runtime-placed actor, so ChaosSpawnZone isn't used here yet — would
+    ; need a native STE_Native helper (see docs/IMPLEMENTATION_PLAN.md).
+    Actor dragon = player.PlaceAtMe(ChaosDragonLeveledActor) as Actor
+    return dragon != None
 EndFunction
 
 bool Function ExecuteSpawnChickens()
+    Actor player = Game.GetPlayer()
+    if !player || !ChaosChickenBase
+        return false
+    endif
+
     int count = STE_Native.GetCommandArgInt("count", 5)
-    return SpawnManager.SpawnChickenSwarm(Game.GetPlayer(), count) > 0
+    int spawned = 0
+    int i = 0
+    while i < count
+        if player.PlaceActorAtMe(ChaosChickenBase)
+            spawned += 1
+        endif
+        i += 1
+    endwhile
+    return spawned > 0
 EndFunction
 
 bool Function ExecuteInvertControls()
