@@ -2,6 +2,13 @@ using TwitchBridge.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+// The default host builder only wires up the User Secrets provider when
+// the environment is "Development" — this runs as "Production" by default
+// (no ASPNETCORE_ENVIRONMENT/DOTNET_ENVIRONMENT set), which silently
+// ignored every `dotnet user-secrets set` value. This is a personal local
+// tool with no real prod/dev split, so load user secrets unconditionally.
+builder.Configuration.AddUserSecrets<Program>();
+
 builder.Services.Configure<TwitchOptions>(builder.Configuration.GetSection("Twitch"));
 builder.Services.Configure<PointsOptions>(builder.Configuration.GetSection("Points"));
 builder.Services.Configure<SkyrimBridgeOptions>(builder.Configuration.GetSection("Skyrim"));
