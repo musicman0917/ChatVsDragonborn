@@ -103,7 +103,10 @@ extern "C" __declspec(dllexport) constinit auto SKSEPlugin_Version = []() {
     v.PluginName("SkyrimTwitchExpansion");
     v.AuthorName("musicman0917");
     v.UsesAddressLibrary(true);
-    v.UsesUpdatedStructs(true);
-    v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+    v.UsesStructsPost629(true);
+    // Leaving CompatibleVersions() unset (rather than listing specific
+    // versions) is the standard idiom for an address-library-only plugin:
+    // it signals "compatible with every runtime version" instead of
+    // needing a recompile whenever Skyrim patches.
     return v;
 }();
