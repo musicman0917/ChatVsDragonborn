@@ -35,13 +35,21 @@ ActorBase Property ChaosDragonActorBase Auto
 ActorBase Property ChaosChickenBase Auto
 { An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
   needs an ActorBase template, not a placed Actor reference. }
-Form[] Property ChaosCheeseItems Auto
-{ Any number of placeable Forms to choose randomly from (e.g. the vanilla
-  FoodCheeseWheel01A/01B/02A, FoodCheeseWedge01, etc.) — typed as an array
-  of the generic Form rather than AlchemyItem since PlaceAtMe itself takes
-  a Form and this doesn't need anything more specific. Fill in as many
-  entries as you like in the Creation Kit; ExecuteSpawnCheese() picks one
-  at random per call. }
+Form Property ChaosCheeseItem1 Auto
+{ Fill in with a vanilla cheese Form in the Creation Kit, e.g. FoodCheeseWheel01A. }
+Form Property ChaosCheeseItem2 Auto
+{ e.g. FoodCheeseWheel01B. }
+Form Property ChaosCheeseItem3 Auto
+{ e.g. FoodCheeseWheel02A. }
+Form Property ChaosCheeseItem4 Auto
+{ e.g. FoodCheeseWheel02B.
+  Four separate scalar Form properties rather than a Form[] array: the
+  Creation Kit's array-editing dialog for Form[] Properties only offers a
+  tiny non-functional "Pick Object" combo box (similar to the LeveledActor
+  picker limitation elsewhere in this script) with no working
+  drag-and-drop or Auto-Fill path, whereas scalar Form properties use the
+  normal, reliable Edit Value picker. ExecuteSpawnCheese() picks one of
+  the four at random per call. }
 
 ; --- Lifecycle --------------------------------------------------------------
 
@@ -107,7 +115,7 @@ Function RouteCommand(string[] command)
         resultMessage = FormatResult(success, viewer, "stole the Dragonborn's gold!", "remove gold failed (check Gold001 is set in the CK).")
     elseif cmdType == "spawn_cheese"
         success = ExecuteSpawnCheese()
-        resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItems is set in the CK).")
+        resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItem1-4 are set in the CK).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
@@ -219,11 +227,25 @@ EndFunction
 
 bool Function ExecuteSpawnCheese()
     Actor player = Game.GetPlayer()
-    if !player || ChaosCheeseItems.Length == 0
+    if !player
         return false
     endif
 
-    Form cheeseForm = ChaosCheeseItems[Utility.RandomInt(0, ChaosCheeseItems.Length - 1)]
+    Form[] cheeseForms = new Form[4]
+    cheeseForms[0] = ChaosCheeseItem1
+    cheeseForms[1] = ChaosCheeseItem2
+    cheeseForms[2] = ChaosCheeseItem3
+    cheeseForms[3] = ChaosCheeseItem4
+
+    ; Not all 4 slots are guaranteed to be filled in the CK, so retry a few
+    ; times rather than risk landing on an unset (None) slot.
+    Form cheeseForm = None
+    int attempts = 0
+    while !cheeseForm && attempts < 10
+        cheeseForm = cheeseForms[Utility.RandomInt(0, 3)]
+        attempts += 1
+    endwhile
+
     if !cheeseForm
         return false
     endif
