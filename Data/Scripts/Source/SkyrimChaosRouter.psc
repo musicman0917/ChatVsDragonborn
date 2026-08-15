@@ -144,7 +144,22 @@ bool Function ExecuteSpawnDragon()
     endif
 
     Actor dragon = player.PlaceActorAtMe(ChaosDragonActorBase, 4, ChaosSpawnZone)
-    return dragon != None
+    if !dragon
+        return false
+    endif
+
+    ; PlaceActorAtMe drops the dragon essentially on top of the player —
+    ; fine for the chicken swarm (crowding is the point), but a hostile
+    ; dragon spawning point-blank is an unfair instant breath attack.
+    ; Reposition it a fixed distance in front of the player's facing
+    ; instead.
+    float angle = player.GetAngleZ()
+    float distance = 1200.0
+    float newX = player.GetPositionX() + (distance * Math.sin(angle))
+    float newY = player.GetPositionY() + (distance * Math.cos(angle))
+    dragon.SetPosition(newX, newY, player.GetPositionZ())
+
+    return true
 EndFunction
 
 bool Function ExecuteSpawnChickens()
