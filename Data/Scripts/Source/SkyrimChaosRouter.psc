@@ -35,6 +35,10 @@ ActorBase Property ChaosDragonActorBase Auto
 ActorBase Property ChaosChickenBase Auto
 { An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
   needs an ActorBase template, not a placed Actor reference. }
+Form Property ChaosCheeseItem Auto
+{ Any placeable Form (e.g. the vanilla FoodCheeseWheel01A, an AlchemyItem)
+  — typed as the generic Form rather than AlchemyItem since PlaceAtMe
+  itself takes a Form and this doesn't need anything more specific. }
 
 ; --- Lifecycle --------------------------------------------------------------
 
@@ -56,7 +60,7 @@ EndEvent
 ;   [0] id            (echoed back via STE_Native.ReportCommandResult)
 ;   [1] type          ("ragdoll" | "spawn_dragon" | "spawn_chickens" |
 ;                       "earthquake" | "invert_controls" | "add_gold" |
-;                       "remove_gold" | "low_gravity")
+;                       "remove_gold" | "low_gravity" | "spawn_cheese")
 ;   [2] viewer        (Twitch display name, for logging/messages only)
 ;   [3] price         (points spent, as string; informational here)
 ; Any numeric arg a handler needs (chicken count, gold amount) comes from
@@ -98,6 +102,9 @@ Function RouteCommand(string[] command)
     elseif cmdType == "remove_gold"
         success = ExecuteGoldDelta(false)
         resultMessage = FormatResult(success, viewer, "stole the Dragonborn's gold!", "remove gold failed (check Gold001 is set in the CK).")
+    elseif cmdType == "spawn_cheese"
+        success = ExecuteSpawnCheese()
+        resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItem is set in the CK).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
@@ -204,5 +211,16 @@ bool Function ExecuteGoldDelta(bool isAdd)
         amount = -amount
     endif
     player.AddItem(Gold001, amount, true)
+    return true
+EndFunction
+
+bool Function ExecuteSpawnCheese()
+    Actor player = Game.GetPlayer()
+    if !player || !ChaosCheeseItem
+        return false
+    endif
+
+    int count = Utility.RandomInt(15, 40)
+    player.PlaceAtMe(ChaosCheeseItem, count)
     return true
 EndFunction

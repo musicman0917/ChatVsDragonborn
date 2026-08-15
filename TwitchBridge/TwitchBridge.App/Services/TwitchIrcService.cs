@@ -130,6 +130,7 @@ public sealed class TwitchIrcService : BackgroundService
         ["lowgravity"] = "chaos.low_gravity.price",
         ["addgold"] = "chaos.add_gold.price",
         ["removegold"] = "chaos.remove_gold.price",
+        ["cheese"] = "chaos.spawn_cheese.price",
     };
 
     private static readonly Dictionary<string, string> ActionCommandTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -142,6 +143,7 @@ public sealed class TwitchIrcService : BackgroundService
         ["lowgravity"] = "low_gravity",
         ["addgold"] = "add_gold",
         ["removegold"] = "remove_gold",
+        ["cheese"] = "spawn_cheese",
     };
 
     private async Task HandleBuyCommandAsync(string viewer, string action)

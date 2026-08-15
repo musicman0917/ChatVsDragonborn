@@ -20,6 +20,7 @@ namespace STE
                 { "chaos.low_gravity.duration_seconds", "30" },
                 { "chaos.add_gold.price", "50" },
                 { "chaos.remove_gold.price", "150" },
+                { "chaos.spawn_cheese.price", "75" },
                 { "poll.interval_minutes", "15" },
                 { "poll.duration_seconds", "60" },
             });
