@@ -12,7 +12,6 @@ float Property PollIntervalSeconds = 0.1 Auto
 { How often to ask the SKSE plugin for the next queued command. Kept short
   since chaos commands should feel near-instant to chat. }
 
-Actor Property PlayerRef Auto
 EncounterZone Property ChaosSpawnZone Auto
 { Optional: assign a dedicated encounter zone so spawned hostiles don't
   scale into an already-hard fight. }
@@ -97,18 +96,20 @@ EndFunction
 ; --- Effect handlers ---------------------------------------------------------
 
 bool Function ExecuteRagdoll()
-    if !PlayerRef
+    Actor player = Game.GetPlayer()
+    if !player
         return false
     endif
-    PlayerRef.PushActorAway(PlayerRef, 0.0)
+    player.PushActorAway(player, 0.0)
     return true
 EndFunction
 
 bool Function ExecuteEarthquake()
-    if !PlayerRef
+    Actor player = Game.GetPlayer()
+    if !player
         return false
     endif
-    Game.ShakeCamera(PlayerRef, 1.0, 3.0)
+    Game.ShakeCamera(player, 1.0, 3.0)
     return true
 EndFunction
 
@@ -116,13 +117,13 @@ bool Function ExecuteSpawnDragon()
     ; Actual leveled-actor selection + safe-spawn-point logic lives in a
     ; dedicated ChaosSpawnManager script (Phase 3 of docs/IMPLEMENTATION_PLAN.md);
     ; this stub shows the call shape the router expects handlers to expose.
-    Actor spawned = SpawnManager.SpawnHostileDragon(PlayerRef, ChaosSpawnZone)
+    Actor spawned = SpawnManager.SpawnHostileDragon(Game.GetPlayer(), ChaosSpawnZone)
     return spawned != None
 EndFunction
 
 bool Function ExecuteSpawnChickens()
     int count = STE_Native.GetCommandArgInt("count", 5)
-    return SpawnManager.SpawnChickenSwarm(PlayerRef, count) > 0
+    return SpawnManager.SpawnChickenSwarm(Game.GetPlayer(), count) > 0
 EndFunction
 
 bool Function ExecuteInvertControls()
@@ -140,13 +141,14 @@ bool Function ExecuteLowGravity()
 EndFunction
 
 bool Function ExecuteGoldDelta(bool isAdd)
-    if !PlayerRef
+    Actor player = Game.GetPlayer()
+    if !player
         return false
     endif
     int amount = STE_Native.GetCommandArgInt("amount", 100)
     if !isAdd
         amount = -amount
     endif
-    PlayerRef.AddItem(Gold001, amount, true)
+    player.AddItem(Gold001, amount, true)
     return true
 EndFunction

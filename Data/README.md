@@ -50,14 +50,16 @@ PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<Sk
 
 1. Create a new Quest (e.g. `STE_ChaosRouterQuest`), start-game-enabled, no
    quest stages needed.
-2. Attach `SkyrimChaosRouter.psc` to it; fill in the `PlayerRef`,
-   `ChaosSpawnZone`, `Gold001`, and `SpawnManager` properties (the last one
-   points at the `ChaosSpawnManager` instance from step 3 — its spawn
-   functions are instance methods, so the router needs a live reference to
-   call them through).
-3. Create a second Quest (or reuse the same one) for `ChaosSpawnManager.psc`;
-   fill in `ChaosDragonLeveledActor` (a `LeveledActor`, e.g. a dragon leveled
-   list) and `ChaosChickenBase` (an `ActorBase` NPC_ record, e.g. the vanilla
-   "Chicken" template).
-4. Build a plugin (`.esp`/`.esl`) containing both quests and save it alongside
+2. Attach `SkyrimChaosRouter.psc` to it; fill in the `ChaosSpawnZone`
+   (optional — safe to leave unset), `Gold001`, and `SpawnManager`
+   properties (the last one points at the `ChaosSpawnManager` instance from
+   step 3 — its spawn functions are instance methods, so the router needs a
+   live reference to call them through; the player reference itself comes
+   from `Game.GetPlayer()` in-script, no property needed).
+3. Attach `ChaosSpawnManager.psc` to the same quest (a Form can have more
+   than one script attached — this lets `SpawnManager` above just point at
+   "this quest"); fill in `ChaosDragonLeveledActor` (a `LeveledActor`, e.g. a
+   dragon leveled list) and `ChaosChickenBase` (an `ActorBase` NPC_ record,
+   e.g. the vanilla "Chicken" template).
+4. Build a plugin (`.esp`/`.esl`) containing the quest and save it alongside
    this `Data/` tree.
