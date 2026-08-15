@@ -1,3 +1,4 @@
+using TwitchBridge.Logging;
 using TwitchBridge.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -8,6 +9,12 @@ var builder = Host.CreateApplicationBuilder(args);
 // ignored every `dotnet user-secrets set` value. This is a personal local
 // tool with no real prod/dev split, so load user secrets unconditionally.
 builder.Configuration.AddUserSecrets<Program>();
+
+// One log file per session (logs/twitchbridge-<timestamp>.log), alongside
+// the console output — lets you review what happened after a stream ends
+// without having to keep the console window scrolled back.
+var logPath = Path.Combine("logs", $"twitchbridge-{DateTime.Now:yyyyMMdd-HHmmss}.log");
+builder.Logging.AddProvider(new FileLoggerProvider(logPath));
 
 builder.Services.Configure<TwitchOptions>(builder.Configuration.GetSection("Twitch"));
 builder.Services.Configure<PointsOptions>(builder.Configuration.GetSection("Points"));

@@ -13,6 +13,7 @@ SKSEPlugin/out/
 TwitchBridge/**/bin/
 TwitchBridge/**/obj/
 TwitchBridge/TwitchBridge.App/data/
+TwitchBridge/TwitchBridge.App/logs/
 *.user
 
 # --- Built/packaged mod payload ----------------------------------------------
