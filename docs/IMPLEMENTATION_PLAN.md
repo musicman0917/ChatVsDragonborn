@@ -16,11 +16,18 @@ See `ARCHITECTURE.md` for the data-flow diagram and threading rules referenced b
 
 ## Phase 1 — Points Economy (local JSON ledger)
 
-- [ ] `TwitchBridge`: `PointsEconomyService` — per-viewer balance, earn-rate ticks
-      (points/min while live), event-based grants (sub, resub, bits, channel-point
-      redemption via EventSub), atomic JSON persistence (write-to-temp + rename).
+- [x] `TwitchBridge`: `PointsEconomyService` — per-viewer balance with role-based
+      starting tiers (base/follower/VIP-mod-broadcaster), passive-income ticks for
+      viewers active within a rolling window (`PassiveIncomeService`), event-based
+      grants (new sub, resub, gifted sub — credited to the gifter, bits), a
+      one-time follow-after-first-message bonus via Helix (`HelixApiService`,
+      throttled, degrades to no-op without a configured moderator token), atomic
+      JSON persistence (write-to-temp + rename). Ported from
+      WaterparkSimTwitchExpansion's `PointsManager` design.
+- [ ] Channel-point custom reward redemptions via EventSub.
 - [ ] Admin/mod commands (`!points add <user> <n>`, `!points set`) gated by Twitch
-      badge checks.
+      badge checks — `!give @user <n>` (mod/broadcaster-only) already covers the
+      add case.
 - [ ] Unit tests around the ledger (concurrent grant + spend, corrupt-file recovery).
 
 ## Phase 2 — Chaos Command Pipe & Native Bridge

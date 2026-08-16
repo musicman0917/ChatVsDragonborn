@@ -15,6 +15,15 @@ public sealed class TwitchOptions
     public string OAuthToken { get; set; } = "";
     public string ClientId { get; set; } = "";
     public string ClientSecret { get; set; } = "";
+
+    /// <summary>
+    /// A user token -- belonging to the broadcaster or a mod, not the bot --
+    /// carrying moderator:read:followers. Only used by HelixApiService for
+    /// the one-time follow-bonus check; leave blank to disable that feature
+    /// entirely (ShouldCheckFollowBonusAsync/IsFollowingAsync both degrade to
+    /// "no bonus" rather than erroring).
+    /// </summary>
+    public string ModeratorAccessToken { get; set; } = "";
 }
 
 /// <summary>
@@ -29,7 +38,9 @@ public sealed class TwitchIrcService : BackgroundService
 {
     private readonly ILogger<TwitchIrcService> _logger;
     private readonly TwitchOptions _options;
+    private readonly PointsOptions _pointsOptions;
     private readonly PointsEconomyService _points;
+    private readonly HelixApiService _helix;
     private readonly SkyrimIpcClient _skyrim;
     private readonly OverlayHttpServer _overlay;
     private TwitchClient? _client;
@@ -37,13 +48,17 @@ public sealed class TwitchIrcService : BackgroundService
     public TwitchIrcService(
         ILogger<TwitchIrcService> logger,
         IOptions<TwitchOptions> options,
+        IOptions<PointsOptions> pointsOptions,
         PointsEconomyService points,
+        HelixApiService helix,
         SkyrimIpcClient skyrim,
         OverlayHttpServer overlay)
     {
         _logger = logger;
         _options = options.Value;
+        _pointsOptions = pointsOptions.Value;
         _points = points;
+        _helix = helix;
         _skyrim = skyrim;
         _overlay = overlay;
 
@@ -94,6 +109,9 @@ public sealed class TwitchIrcService : BackgroundService
         _client.OnMessageReceived += OnMessageReceived;
         _client.OnConnected += (_, e) => _logger.LogInformation("Connected to Twitch as {Bot}", e.BotUsername);
         _client.OnDisconnected += (_, _) => _logger.LogWarning("Disconnected from Twitch");
+        _client.OnNewSubscriber += OnNewSubscriber;
+        _client.OnReSubscriber += OnReSubscriber;
+        _client.OnGiftedSubscription += OnGiftedSubscription;
 
         _client.Connect();
 
@@ -103,8 +121,34 @@ public sealed class TwitchIrcService : BackgroundService
 
     private async void OnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
-        var message = e.ChatMessage.Message.Trim();
-        var viewer = e.ChatMessage.Username;
+        var chatMessage = e.ChatMessage;
+        var message = chatMessage.Message.Trim();
+        var viewer = chatMessage.Username;
+
+        // Every message counts as activity, not just commands -- this is what
+        // creates the account (at the right starting tier) and keeps
+        // LastSeenUtc fresh for the passive-income activity window.
+        var isPrivileged = chatMessage.IsBroadcaster || chatMessage.IsModerator || chatMessage.IsVip;
+        var startingBalance = isPrivileged ? _pointsOptions.StartingBalanceVipModBroadcaster : _pointsOptions.StartingBalanceBase;
+        await _points.RegisterActivityAsync(viewer, chatMessage.DisplayName, startingBalance);
+
+        // Bits arrive as a tag on a regular chat message, not a separate
+        // event (TwitchLib.Client has no OnBitsReceived for IRC-sourced
+        // cheers -- confirmed against the library source for the pinned
+        // TwitchLib.Client version before writing this).
+        if (chatMessage.Bits > 0)
+        {
+            await _points.GrantBitsAsync(viewer, chatMessage.Bits);
+            _logger.LogInformation("{Viewer} cheered {Bits} bits", viewer, chatMessage.Bits);
+        }
+
+        // Follow status has no chat badge/tag (Twitch removed it from IRC in
+        // 2023), so it's checked out-of-band via Helix, throttled, and only
+        // for viewers who didn't already start at the top tier.
+        if (!isPrivileged && await _points.ShouldCheckFollowBonusAsync(viewer))
+        {
+            _ = CheckFollowBonusAsync(viewer);
+        }
 
         if (message.StartsWith("!buy ", StringComparison.OrdinalIgnoreCase))
         {
@@ -113,11 +157,73 @@ public sealed class TwitchIrcService : BackgroundService
         }
         else if (message.StartsWith("!give ", StringComparison.OrdinalIgnoreCase))
         {
-            await HandleGiveCommandAsync(e.ChatMessage);
+            await HandleGiveCommandAsync(chatMessage);
         }
         // !vote 1/2/3 handling lives in PollEngine once wired in (Phase 4 of
         // docs/IMPLEMENTATION_PLAN.md); TwitchIrcService only owns the raw
         // chat parsing entry point.
+    }
+
+    // Deliberately not awaited at the call site -- a follow lookup is a
+    // network round-trip and must never block chat message processing.
+    // Failures already degrade to "no bonus" inside HelixApiService, so
+    // there's nothing worth surfacing back to the caller here beyond a log.
+    private async Task CheckFollowBonusAsync(string viewer)
+    {
+        try
+        {
+            if (await _helix.IsFollowingAsync(viewer))
+            {
+                if (await _points.TryGrantFollowBonusAsync(viewer))
+                {
+                    _logger.LogInformation("{Viewer} confirmed as a follower; follow bonus granted", viewer);
+                }
+            }
+        }
+        finally
+        {
+            await _points.MarkFollowCheckedAsync(viewer);
+        }
+    }
+
+    // Prime counts as tier 1, same as WaterparkSimTwitchExpansion's PointsManager.
+    private static int TierValue(TwitchLib.Client.Enums.SubscriptionPlan plan) => plan switch
+    {
+        TwitchLib.Client.Enums.SubscriptionPlan.Tier2 => 2,
+        TwitchLib.Client.Enums.SubscriptionPlan.Tier3 => 3,
+        _ => 1,
+    };
+
+    private async void OnNewSubscriber(object? sender, OnNewSubscriberArgs e)
+    {
+        var tier = TierValue(e.Subscriber.SubscriptionPlan);
+        await _points.GrantSubAsync(e.Subscriber.Login, tier);
+        SendChatMessage($"Thanks for subscribing, {e.Subscriber.DisplayName}!");
+        _logger.LogInformation("{Viewer} subscribed (tier {Tier})", e.Subscriber.Login, tier);
+    }
+
+    private async void OnReSubscriber(object? sender, OnReSubscriberArgs e)
+    {
+        var tier = TierValue(e.ReSubscriber.SubscriptionPlan);
+        await _points.GrantSubAsync(e.ReSubscriber.Login, tier);
+        SendChatMessage($"Thanks for resubscribing, {e.ReSubscriber.DisplayName}!");
+        _logger.LogInformation("{Viewer} resubscribed (tier {Tier})", e.ReSubscriber.Login, tier);
+    }
+
+    // Fires once per recipient -- a mass/community gift of N shows up as N of
+    // these, so no separate OnCommunitySubscription handling is needed to
+    // pay out the gifter correctly.
+    private async void OnGiftedSubscription(object? sender, OnGiftedSubscriptionArgs e)
+    {
+        var gift = e.GiftedSubscription;
+        if (gift.IsAnonymous)
+        {
+            return; // no real gifter account to credit
+        }
+
+        var tier = TierValue(gift.MsgParamSubPlan);
+        await _points.GrantGiftedSubAsync(gift.Login, tier);
+        _logger.LogInformation("{Gifter} gifted a sub (tier {Tier}) to {Recipient}", gift.Login, tier, gift.MsgParamRecipientUserName);
     }
 
     private static readonly Dictionary<string, string> ActionPriceKeys = new(StringComparer.OrdinalIgnoreCase)

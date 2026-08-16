@@ -23,6 +23,7 @@ builder.Services.Configure<OverlayOptions>(builder.Configuration.GetSection("Ove
 
 builder.Services.AddSingleton<PointsEconomyService>();
 builder.Services.AddSingleton<HelixApiService>();
+builder.Services.AddHostedService<PassiveIncomeService>();
 
 // BackgroundServices that also need to be resolved as concrete singletons
 // elsewhere (SkyrimIpcClient::SendAsync, OverlayHttpServer::BroadcastAsync)
