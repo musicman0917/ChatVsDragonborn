@@ -17,6 +17,21 @@ Scriptname STE_MCMConfig extends MCM_ConfigBase
   quest hosts the script, so a dedicated quest isn't needed.
 }
 
+; ModName is a plain (non-readonly) Property inherited from SKI_ConfigBase --
+; SkyUI's own registration code (SKI_ConfigBase.OnInit -> ... ->
+; OnConfigManagerReady -> SKI_ConfigManager.RegisterMod) reads it to decide
+; what name to register this menu under, and ConfigStore::ReadConfig then
+; looks for Data/MCM/Config/<that name>/config.json. Set explicitly here
+; rather than left for the Creation Kit's property editor: it defaults to an
+; empty string, and the CK's own property UI for SkyUI-derived scripts is
+; unreliable enough (see this session's history) that a wrong/stale value
+; is easy to end up with by hand. parent.OnInit() must still run -- it's
+; what registers the SKICP_configManagerReady listener in the first place.
+Event OnInit()
+    ModName = "SkyrimTwitchExpansion"
+    parent.OnInit()
+EndEvent
+
 ; One entry per interactive control in config.json, mapping its "id" to the
 ; settings key STE_Native.GetSettingInt/GetSetting reads elsewhere. Kept as
 ; an if/elseif chain rather than a lookup table -- Papyrus has no Dictionary
