@@ -24,6 +24,12 @@ See **`docs/ARCHITECTURE.md`** for the full data-flow diagram (Twitch → bridge
 I/O off the game's main thread. See **`docs/IMPLEMENTATION_PLAN.md`** for the
 phased build-out plan from this scaffold to a shippable mod.
 
+**`docs/index.html`** is the viewer-facing commands/points page — enable it via
+Settings → Pages → Deploy from branch → `main` / `/docs`, then link it from your
+Twitch panels. Update it by hand whenever a command's price or a points-economy
+default in `TwitchBridge/TwitchBridge.App/appsettings.json` /
+`SKSEPlugin/src/Settings/Settings.cpp` changes — nothing generates it automatically.
+
 ## Repository layout
 
 ```
