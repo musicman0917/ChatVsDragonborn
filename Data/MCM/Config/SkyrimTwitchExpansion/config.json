@@ -2,6 +2,12 @@
   "$schema": "https://raw.githubusercontent.com/Exit-9B/MCM-Helper/main/docs/config.schema.json",
   "modName": "SkyrimTwitchExpansion",
   "displayName": "ChatVsDragonborn",
+  "content": [
+    {
+      "type": "text",
+      "text": "ChatVsDragonborn lets Twitch chat spend points on chaos commands and controls how quickly viewers earn them. Select a page above to configure prices, gold amounts, or poll/effect timers."
+    }
+  ],
   "pages": [
     {
       "pageDisplayName": "Chaos Prices",
