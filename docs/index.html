@@ -5,400 +5,368 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chat vs. Dragonborn — Commands &amp; Points</title>
 <meta name="description" content="Chaos commands and the viewer points economy for the Chat vs. Dragonborn Twitch integration.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐉</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%E1%9A%B1</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --parchment:#e9dcc0;
-    --parchment-dim:#d8c8a2;
-    --ink:#2a2118;
-    --ink-soft:#4a3d2c;
-    --gold:#c9a24b;
-    --gold-bright:#e9c975;
-    --bg-deep:#120d09;
-    --bg-panel:#1c150e;
-    --bg-panel-2:#241b12;
-    --border:#4d3a22;
-    --red:#8c2f2f;
-    --green:#3f6b3f;
-    --shadow: 0 10px 30px rgba(0,0,0,.5);
+    --stone-950:#100e10;
+    --stone-900:#161316;
+    --stone-850:#1b181b;
+    --stone-800:#242024;
+    --stone-700:#3a3438;
+    --stone-600:#544c50;
+    --bone:#d9cdb4;
+    --bone-dim:#a89b85;
+    --ember:#e0883c;
+    --ember-bright:#ffb35c;
+    --ember-dim:#8a5527;
+    --live:#7fae7a;
+    --beta:#c99a4a;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
   body{
+    margin:0;
     background:
-      radial-gradient(ellipse at top, #1a130c 0%, var(--bg-deep) 60%),
-      var(--bg-deep);
-    color:var(--parchment);
-    font-family:'EB Garamond', Georgia, serif;
-    font-size:18px;
-    line-height:1.6;
-    min-height:100vh;
+      radial-gradient(1200px 700px at 12% -10%, #201a16 0%, transparent 55%),
+      radial-gradient(900px 600px at 90% 10%, #17151a 0%, transparent 60%),
+      var(--stone-950);
+    color:var(--bone);
+    font-family:'Crimson Pro', Georgia, serif;
+    font-size:19px;
+    line-height:1.65;
   }
-  .noise{
-    position:fixed; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+  ::selection{ background:var(--ember-dim); color:var(--stone-950); }
+  a{ color:var(--ember-bright); text-decoration-color:var(--ember-dim); text-underline-offset:3px; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--ember-bright); outline-offset:3px; }
+
+  .stone-texture{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
     background-image:
-      radial-gradient(circle at 20% 30%, #fff 0, transparent 1px),
-      radial-gradient(circle at 60% 70%, #fff 0, transparent 1px),
-      radial-gradient(circle at 80% 20%, #fff 0, transparent 1px),
-      radial-gradient(circle at 40% 90%, #fff 0, transparent 1px);
-    background-size: 140px 140px;
+      repeating-linear-gradient(115deg, rgba(255,255,255,.012) 0 2px, transparent 2px 6px),
+      repeating-linear-gradient(25deg, rgba(0,0,0,.15) 0 1px, transparent 1px 5px);
+    mix-blend-mode:overlay;
   }
-  a{color:var(--gold-bright);}
-  .wrap{max-width:900px; margin:0 auto; padding:0 20px 80px;}
+
+  .wrap{ position:relative; z-index:1; max-width:920px; margin:0 auto; padding:0 24px 100px; }
+
+  .display{ font-family:'Almendra', Georgia, serif; }
 
   header.hero{
-    position:relative;
-    text-align:center;
-    padding:70px 20px 50px;
-    border-bottom:1px solid var(--border);
-    background:
-      linear-gradient(180deg, rgba(201,162,75,.08), transparent 60%);
+    padding:88px 0 64px;
+    border-bottom:1px solid var(--stone-700);
   }
-  .rune-row{
-    letter-spacing:.5em;
-    color:var(--gold);
-    opacity:.55;
-    font-size:.85rem;
-    text-transform:uppercase;
-    margin-bottom:18px;
-  }
-  h1.title{
-    font-family:'Cinzel Decorative', serif;
-    font-weight:900;
-    font-size:clamp(2rem, 5vw, 3.4rem);
-    margin:0 0 10px;
-    color:var(--gold-bright);
-    text-shadow: 0 2px 0 #000, 0 0 40px rgba(233,201,117,.25);
-    letter-spacing:.03em;
-  }
-  p.subtitle{
-    font-family:'Cinzel', serif;
-    color:var(--parchment-dim);
-    font-size:1.05rem;
-    max-width:560px;
-    margin:0 auto;
-    letter-spacing:.02em;
-  }
-  .divider{
+  .hero-eyebrow{
     display:flex; align-items:center; gap:14px;
-    max-width:420px; margin:28px auto 0; color:var(--gold);
-    opacity:.7;
+    font-size:.8rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--bone-dim); margin-bottom:22px;
   }
-  .divider::before, .divider::after{
-    content:""; flex:1; height:1px;
-    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  .hero-eyebrow .rule{ flex:0 0 44px; height:1px; background:var(--stone-600); }
+  h1.title{
+    font-family:'Almendra', Georgia, serif;
+    font-weight:700;
+    font-size:clamp(2.4rem, 6vw, 4rem);
+    line-height:1.05;
+    margin:0 0 20px;
+    text-wrap:balance;
+    color:var(--bone);
+    max-width:14ch;
+  }
+  h1.title .ignite{
+    color:var(--ember);
+    text-shadow: 0 0 18px rgba(224,136,60,.0);
+    animation: ignite 2.2s ease-out .3s forwards;
+  }
+  @keyframes ignite{
+    0%   { color:var(--bone-dim); text-shadow:0 0 0 rgba(224,136,60,0); }
+    55%  { color:var(--ember-bright); text-shadow:0 0 28px rgba(255,179,92,.75), 0 0 6px rgba(255,179,92,.6); }
+    100% { color:var(--ember); text-shadow:0 0 16px rgba(224,136,60,.4); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    h1.title .ignite{ animation:none; color:var(--ember); text-shadow:0 0 16px rgba(224,136,60,.4); }
+  }
+  p.lede{
+    max-width:52ch;
+    color:var(--bone-dim);
+    font-size:1.15rem;
+    margin:0;
   }
 
-  section{ padding:56px 0; border-bottom:1px solid var(--border); }
+  section{ padding:60px 0; border-bottom:1px solid var(--stone-700); }
   section:last-of-type{ border-bottom:none; }
 
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:24px;
+    margin-bottom:34px; flex-wrap:wrap;
+  }
   h2.section-title{
-    font-family:'Cinzel Decorative', serif;
-    font-size:1.7rem;
-    color:var(--gold-bright);
-    text-align:center;
-    margin:0 0 8px;
+    font-family:'Almendra', Georgia, serif;
+    font-weight:700;
+    font-size:1.65rem;
+    color:var(--bone);
+    margin:0;
   }
-  p.section-lede{
-    text-align:center;
-    color:var(--parchment-dim);
-    max-width:620px;
-    margin:0 auto 36px;
-    font-style:italic;
+  .section-note{ color:var(--bone-dim); font-size:.95rem; font-style:italic; max-width:36ch; text-align:right; }
+
+  code{
+    font-family:'Crimson Pro', Georgia, serif;
+    font-weight:600;
+    background:var(--stone-800);
+    border:1px solid var(--stone-700);
+    color:var(--ember-bright);
+    padding:.05em .5em;
+    font-size:.94em;
   }
 
-  code, .kbd{
-    font-family: 'Courier New', monospace;
-    background:var(--bg-panel-2);
-    border:1px solid var(--border);
-    color:var(--gold-bright);
-    padding:.1em .45em;
-    border-radius:4px;
-    font-size:.92em;
+  .steps{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1px;
+    background:var(--stone-700);
+    border:1px solid var(--stone-700);
   }
-
-  .callout{
-    background:var(--bg-panel);
-    border:1px solid var(--border);
-    border-left:4px solid var(--gold);
-    border-radius:6px;
-    padding:18px 22px;
-    box-shadow:var(--shadow);
-    margin-bottom:36px;
+  .steps > div{ background:var(--stone-900); padding:22px 24px; }
+  .steps .num{
+    font-family:'Almendra', Georgia, serif; color:var(--ember); font-size:1.3rem; display:block; margin-bottom:8px;
   }
-  .callout p{margin:.4em 0;}
+  .steps p{ margin:0; color:var(--bone-dim); }
+  .steps strong{ color:var(--bone); }
 
   .cmd-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-    gap:18px;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:1px;
+    background:var(--stone-700);
+    border:1px solid var(--stone-700);
   }
   .cmd-card{
-    background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-2));
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:18px 20px;
-    position:relative;
-    box-shadow:var(--shadow);
-    display:flex;
-    flex-direction:column;
-    gap:8px;
+    background:var(--stone-900);
+    padding:22px 22px 20px;
+    display:flex; flex-direction:column; gap:10px;
   }
-  .cmd-card .icon{ font-size:1.7rem; line-height:1; }
+  .cmd-card .rune{
+    font-size:1.3rem; color:var(--ember-dim); line-height:1;
+  }
   .cmd-card .cmd-name{
-    font-family:'Cinzel', serif;
-    font-weight:600;
-    color:var(--gold-bright);
-    font-size:1.05rem;
+    font-family:'Almendra', Georgia, serif;
+    font-size:1.15rem;
+    color:var(--bone);
   }
   .cmd-card .price{
-    color:var(--gold);
+    font-variant-numeric: tabular-nums;
+    color:var(--ember-bright);
     font-weight:600;
     font-size:.95rem;
+    letter-spacing:.02em;
   }
-  .cmd-card .desc{
-    color:var(--parchment-dim);
-    font-size:.95rem;
-    flex:1;
+  .cmd-card .desc{ color:var(--bone-dim); font-size:.96rem; flex:1; }
+  .tag{
+    align-self:flex-start;
+    font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:3px 8px 2px;
+    border:1px solid currentColor;
   }
-  .badge{
-    display:inline-block;
-    font-family:'Cinzel', serif;
-    font-size:.68rem;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    padding:3px 9px;
-    border-radius:999px;
-    width:fit-content;
-  }
-  .badge.live{ background:rgba(63,107,63,.25); color:#a8d3a8; border:1px solid var(--green); }
-  .badge.beta{ background:rgba(201,162,75,.18); color:var(--gold-bright); border:1px solid var(--gold); }
+  .tag.live{ color:var(--live); }
+  .tag.beta{ color:var(--beta); }
 
-  table.points-table{
-    width:100%;
-    border-collapse:collapse;
-    background:var(--bg-panel);
-    border:1px solid var(--border);
-    border-radius:8px;
-    overflow:hidden;
-    box-shadow:var(--shadow);
-  }
-  table.points-table th, table.points-table td{
-    padding:12px 16px;
-    text-align:left;
-    border-bottom:1px solid var(--border);
-  }
-  table.points-table th{
-    font-family:'Cinzel', serif;
-    color:var(--gold-bright);
-    background:var(--bg-panel-2);
-    font-size:.9rem;
-    letter-spacing:.03em;
-    text-transform:uppercase;
-  }
-  table.points-table tr:last-child td{ border-bottom:none; }
-  table.points-table td.amount{ color:var(--gold-bright); font-weight:600; white-space:nowrap; }
+  .legend{ color:var(--bone-dim); font-size:.92rem; margin-top:20px; }
+  .legend .tag{ display:inline-block; margin-right:6px; vertical-align:middle; }
 
-  .tier-row{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap:14px;
-    margin-top:20px;
+  .tier-ledger{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1px;
+    background:var(--stone-700); border:1px solid var(--stone-700); margin-bottom:44px;
   }
-  @media(min-width:640px){ .tier-row{ grid-template-columns:repeat(3,1fr); } }
-  .tier{
-    background:var(--bg-panel);
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:18px;
-    text-align:center;
+  .tier-ledger > div{ background:var(--stone-900); padding:24px; text-align:left; }
+  .tier-ledger .amt{
+    font-family:'Almendra', Georgia, serif; font-size:2rem; color:var(--ember-bright);
+    font-variant-numeric: tabular-nums; display:block; margin-bottom:6px;
   }
-  .tier .amt{
-    font-family:'Cinzel Decorative', serif;
-    font-size:1.6rem;
-    color:var(--gold-bright);
+  .tier-ledger .who{ color:var(--bone); font-weight:600; }
+  .tier-ledger .cond{ color:var(--bone-dim); font-size:.88rem; margin-top:4px; }
+
+  .ledger-wrap{ overflow-x:auto; border:1px solid var(--stone-700); }
+  table.ledger{
+    width:100%; border-collapse:collapse; min-width:520px;
   }
-  .tier .label{ color:var(--parchment-dim); font-size:.9rem; margin-top:4px; }
+  table.ledger th, table.ledger td{
+    padding:14px 20px; text-align:left; border-bottom:1px solid var(--stone-700);
+  }
+  table.ledger thead th{
+    font-family:'Almendra', Georgia, serif; font-weight:400;
+    color:var(--bone-dim); font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;
+    background:var(--stone-900);
+  }
+  table.ledger tbody{ background:var(--stone-950); }
+  table.ledger tr:last-child td{ border-bottom:none; }
+  table.ledger td.amount{
+    font-variant-numeric: tabular-nums; color:var(--ember-bright); font-weight:600; white-space:nowrap;
+  }
+  table.ledger td.note{ color:var(--bone-dim); font-size:.92rem; }
 
   footer{
-    text-align:center;
-    padding:40px 20px 60px;
-    color:var(--parchment-dim);
-    font-size:.9rem;
+    padding:48px 0 0;
+    color:var(--bone-dim); font-size:.9rem;
+    display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
   }
-  footer .rune-row{ margin-bottom:10px; }
-
-  .scroll-x{ overflow-x:auto; }
+  footer .runes{ letter-spacing:.3em; color:var(--stone-600); }
 </style>
 </head>
 <body>
-<div class="noise"></div>
-
-<header class="hero">
-  <div class="rune-row">ᛋᚴᛦᚱᛁᛗ ᛏᚹᛁᛏᚴ</div>
-  <h1 class="title">Chat vs. Dragonborn</h1>
-  <p class="subtitle">Earn points by watching. Spend them wreaking havoc on the Dragonborn.</p>
-  <div class="divider">⚔</div>
-</header>
-
+<div class="stone-texture"></div>
 <div class="wrap">
 
+  <header class="hero">
+    <div class="hero-eyebrow"><span class="rule"></span> a word wall for the chat</div>
+    <h1 class="title">Chat vs. <span class="ignite">Dragonborn</span></h1>
+    <p class="lede">Every command carved on this wall can be called from chat. Read on to learn how points are earned, and what each word unleashes.</p>
+  </header>
+
   <section id="how-it-works">
-    <h2 class="section-title">How It Works</h2>
-    <p class="section-lede">Three steps between you and chaos.</p>
-    <div class="callout">
-      <p><strong>1. Earn points</strong> just by being in chat — no grinding required.</p>
-      <p><strong>2. Spend them</strong> with <code>!buy &lt;action&gt;</code> to trigger something in-game, live, on stream.</p>
-      <p><strong>3. Watch it happen</strong> — the bot replies in chat once the game confirms your command went through.</p>
+    <div class="section-head">
+      <h2 class="section-title">How It Works</h2>
+    </div>
+    <div class="steps">
+      <div><span class="num">I.</span><p><strong>Earn points</strong> just by being in chat — no grinding required.</p></div>
+      <div><span class="num">II.</span><p>Spend them with <code>!buy &lt;action&gt;</code> to trigger something in-game, live.</p></div>
+      <div><span class="num">III.</span><p>The bot confirms in chat once the game reports your command went through.</p></div>
     </div>
   </section>
 
   <section id="commands">
-    <h2 class="section-title">Chaos Commands</h2>
-    <p class="section-lede">Type <code>!buy</code> followed by an action below. Prices are in points.</p>
+    <div class="section-head">
+      <h2 class="section-title">Words on the Wall</h2>
+      <p class="section-note">Type <code>!buy</code> followed by an action. Prices are in points.</p>
+    </div>
 
     <div class="cmd-grid">
-
       <div class="cmd-card">
-        <div class="icon">🤸</div>
+        <span class="rune">ᚱ</span>
         <div class="cmd-name"><code>!buy ragdoll</code></div>
         <div class="price">50 points</div>
         <div class="desc">Knocks the Dragonborn clean off their feet.</div>
-        <span class="badge live">Live</span>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🌋</div>
+        <span class="rune">ᛖ</span>
         <div class="cmd-name"><code>!buy earthquake</code></div>
         <div class="price">150 points</div>
         <div class="desc">Shakes the camera like the ground itself is angry.</div>
-        <span class="badge live">Live</span>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🐲</div>
+        <span class="rune">ᛞ</span>
         <div class="cmd-name"><code>!buy dragon</code></div>
         <div class="price">1000 points</div>
-        <div class="desc">Summons a hostile dragon a short distance in front of the Dragonborn. The big one.</div>
-        <span class="badge live">Live</span>
+        <div class="desc">Summons a hostile dragon a short distance ahead of the Dragonborn.</div>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🐔</div>
+        <span class="rune">ᚲ</span>
         <div class="cmd-name"><code>!buy chickens</code></div>
         <div class="price">200 points</div>
-        <div class="desc">Unleashes a swarm of chickens on top of the Dragonborn's position.</div>
-        <span class="badge live">Live</span>
+        <div class="desc">Unleashes a swarm of chickens on the Dragonborn's position.</div>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🧀</div>
+        <span class="rune">ᚺ</span>
         <div class="cmd-name"><code>!buy cheese</code></div>
         <div class="price">75 points</div>
-        <div class="desc">Buries the Dragonborn in 15–40 wheels of cheese, randomly picked from several varieties.</div>
-        <span class="badge live">Live</span>
+        <div class="desc">Buries the Dragonborn in 15–40 wheels of cheese, randomly chosen.</div>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">💰</div>
+        <span class="rune">ᚨ</span>
         <div class="cmd-name"><code>!buy addgold</code></div>
         <div class="price">50 points</div>
         <div class="desc">Gifts the Dragonborn a pile of gold, no strings attached.</div>
-        <span class="badge live">Live</span>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🕳️</div>
+        <span class="rune">ᛗ</span>
         <div class="cmd-name"><code>!buy removegold</code></div>
         <div class="price">150 points</div>
-        <div class="desc">Pickpockets the Dragonborn's gold straight out of their pocket.</div>
-        <span class="badge live">Live</span>
+        <div class="desc">Pickpockets the Dragonborn's gold straight out of their coinpurse.</div>
+        <span class="tag live">Live</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🎮</div>
+        <span class="rune">ᛟ</span>
         <div class="cmd-name"><code>!buy invert</code></div>
         <div class="price">300 points</div>
         <div class="desc">Inverts the Dragonborn's controls for a short time.</div>
-        <span class="badge beta">Beta</span>
+        <span class="tag beta">Beta</span>
       </div>
-
       <div class="cmd-card">
-        <div class="icon">🪶</div>
+        <span class="rune">ᛚ</span>
         <div class="cmd-name"><code>!buy lowgravity</code></div>
         <div class="price">400 points</div>
-        <div class="desc">Turns on low gravity for a short time, moon-jump physics included.</div>
-        <span class="badge beta">Beta</span>
+        <div class="desc">Turns on low gravity for a short time — moon-jump physics included.</div>
+        <span class="tag beta">Beta</span>
       </div>
-
     </div>
-    <p style="text-align:center; color:var(--parchment-dim); font-size:.9rem; margin-top:24px;">
-      <span class="badge beta" style="vertical-align:middle;">Beta</span>
-      commands are purchasable but still being tuned — expect rough edges.
-    </p>
+
+    <p class="legend"><span class="tag live">Live</span> effects fire in-game as described. <span class="tag beta">Beta</span> commands are purchasable and priced, but still being tuned — expect rough edges.</p>
   </section>
 
   <section id="points">
-    <h2 class="section-title">The Points Economy</h2>
-    <p class="section-lede">How you earn what you spend on chaos.</p>
+    <div class="section-head">
+      <h2 class="section-title">The Ledger</h2>
+      <p class="section-note">How points are earned before they're spent.</p>
+    </div>
 
-    <h3 style="font-family:'Cinzel',serif; color:var(--gold-bright); text-align:center; margin-bottom:6px;">Starting Balance</h3>
-    <p style="text-align:center; color:var(--parchment-dim); margin-top:0;">Set the moment you first chat, based on your role in the channel.</p>
-    <div class="tier-row">
-      <div class="tier">
-        <div class="amt">250</div>
-        <div class="label">Everyone</div>
+    <div class="tier-ledger">
+      <div>
+        <span class="amt">250</span>
+        <div class="who">Everyone</div>
+        <div class="cond">Starting balance, first time you speak in chat.</div>
       </div>
-      <div class="tier">
-        <div class="amt">500</div>
-        <div class="label">Followers <span style="opacity:.7;">(one-time bonus, applied automatically once confirmed)</span></div>
+      <div>
+        <span class="amt">500</span>
+        <div class="who">Followers</div>
+        <div class="cond">One-time bonus, applied automatically once confirmed.</div>
       </div>
-      <div class="tier">
-        <div class="amt">1000</div>
-        <div class="label">VIPs, Mods &amp; Broadcaster</div>
+      <div>
+        <span class="amt">1000</span>
+        <div class="who">VIPs, mods &amp; broadcaster</div>
+        <div class="cond">Starting balance from the first message.</div>
       </div>
     </div>
 
-    <h3 style="font-family:'Cinzel',serif; color:var(--gold-bright); text-align:center; margin:40px 0 16px;">Earning More</h3>
-    <div class="scroll-x">
-      <table class="points-table">
+    <div class="ledger-wrap">
+      <table class="ledger">
         <thead>
-          <tr><th>Source</th><th>Reward</th></tr>
+          <tr><th>Source</th><th>Reward</th><th>Note</th></tr>
         </thead>
         <tbody>
           <tr>
             <td>Active in chat</td>
-            <td class="amount">10 points / minute</td>
+            <td class="amount">10 / min</td>
+            <td class="note">Pauses if you go quiet for a while — speak up to keep it flowing.</td>
           </tr>
           <tr>
             <td>New sub / resub</td>
-            <td class="amount">500 / 1000 / 1500 <span style="color:var(--parchment-dim); font-weight:400;">(tier 1 / 2 / 3, Prime counts as tier 1)</span></td>
+            <td class="amount">500 – 1500</td>
+            <td class="note">Tier 1 / 2 / 3 respectively; Prime counts as tier 1.</td>
           </tr>
           <tr>
             <td>Gifting a sub</td>
-            <td class="amount">Same as above, paid to you as the gifter — once per sub, even in a mass gift</td>
+            <td class="amount">500 – 1500</td>
+            <td class="note">Paid to you, the gifter — once per recipient, even in a mass gift.</td>
           </tr>
           <tr>
             <td>Cheering bits</td>
-            <td class="amount">1 point / bit</td>
+            <td class="amount">1 / bit</td>
+            <td class="note">Straight conversion, no minimum.</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p style="text-align:center; color:var(--parchment-dim); font-size:.9rem; margin-top:20px;">
-      Passive income only pays out while you're actively chatting — lurking silently for too long pauses it until you speak up again.
-    </p>
   </section>
 
+  <footer>
+    <div>Chat vs. Dragonborn — a Twitch chaos-command integration for Skyrim.</div>
+    <div class="runes">ᚠᚢᚦᚨᚱᚲ</div>
+  </footer>
+
 </div>
-
-<footer>
-  <div class="rune-row">ᚠᚢᛋ ᚱᚩ ᚦᚨᚻ</div>
-  <div>Chat vs. Dragonborn — a Twitch chaos-command integration for Skyrim.</div>
-</footer>
-
 </body>
 </html>
