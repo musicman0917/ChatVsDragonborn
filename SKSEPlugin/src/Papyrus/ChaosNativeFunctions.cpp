@@ -2,6 +2,7 @@
 
 #include "Bridge/MessageQueue.h"
 #include "Bridge/Protocol.h"
+#include "Bridge/SettingsSync.h"
 #include "Settings/Settings.h"
 
 namespace STE::Papyrus
@@ -71,6 +72,13 @@ namespace STE::Papyrus
         void SetSetting(RE::StaticFunctionTag*, std::string key, std::string value)
         {
             Settings::Get().SetString(key, value);
+
+            // MCM (via STE_MCMConfig.psc) and the router's own runtime.*
+            // flag writes both funnel through here. Only chaos.* changes
+            // are worth telling TwitchBridge about -- see Settings.h.
+            if (key.rfind("chaos.", 0) == 0) {
+                PushSettingsSyncEvent();
+            }
         }
 
         int GetSettingInt(RE::StaticFunctionTag*, std::string key, int missingValue)

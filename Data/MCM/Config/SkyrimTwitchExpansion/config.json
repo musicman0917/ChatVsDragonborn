@@ -1,5 +1,5 @@
 {
-  "$schema": "https://mcmhelper.com/schema/v1.json",
+  "$schema": "https://raw.githubusercontent.com/Exit-9B/MCM-Helper/main/docs/config.schema.json",
   "modName": "SkyrimTwitchExpansion",
   "displayName": "Twitch Expansion",
   "pages": [
@@ -8,50 +8,93 @@
       "content": [
         {
           "type": "text",
-          "text": "Prices apply live — no restart needed. Changes are read by both the SKSE plugin and the TwitchBridge companion app from the shared settings file."
+          "text": "Prices apply live — no restart needed. STE_MCMConfig.psc mirrors every change here into the shared settings both the SKSE plugin and TwitchBridge read."
         },
         {
           "type": "slider",
-          "id": "chaos_ragdoll_price",
+          "id": "iRagdollPrice:ChaosPrices",
           "text": "Ragdoll Player — Price",
           "help": "Points cost for !buy ragdoll",
-          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.ragdoll.price"
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 50 }
         },
         {
           "type": "slider",
-          "id": "chaos_earthquake_price",
+          "id": "iEarthquakePrice:ChaosPrices",
           "text": "Earthquake — Price",
-          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.earthquake.price"
+          "help": "Points cost for !buy earthquake",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
         },
         {
           "type": "slider",
-          "id": "chaos_spawn_dragon_price",
+          "id": "iDragonPrice:ChaosPrices",
           "text": "Spawn Dragon — Price",
-          "valueOptions": { "min": 0, "max": 5000, "step": 50, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.spawn_dragon.price"
+          "help": "Points cost for !buy dragon",
+          "valueOptions": { "min": 0, "max": 5000, "step": 50, "sourceType": "ModSettingInt", "defaultValue": 1000 }
         },
         {
           "type": "slider",
-          "id": "chaos_spawn_chickens_price",
+          "id": "iChickensPrice:ChaosPrices",
           "text": "Chicken Swarm — Price",
-          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.spawn_chickens.price"
+          "help": "Points cost for !buy chickens",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 200 }
         },
         {
           "type": "slider",
-          "id": "chaos_invert_controls_price",
+          "id": "iCheesePrice:ChaosPrices",
+          "text": "Cheese Barrage — Price",
+          "help": "Points cost for !buy cheese",
+          "valueOptions": { "min": 0, "max": 2000, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 75 }
+        },
+        {
+          "type": "slider",
+          "id": "iAddGoldPrice:ChaosPrices",
+          "text": "Give Gold — Price",
+          "help": "Points cost for !buy addgold",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 50 }
+        },
+        {
+          "type": "slider",
+          "id": "iRemoveGoldPrice:ChaosPrices",
+          "text": "Steal Gold — Price",
+          "help": "Points cost for !buy removegold",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iInvertPrice:ChaosPrices",
           "text": "Invert Controls — Price",
-          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.invert_controls.price"
+          "help": "Points cost for !buy invert",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 300 }
         },
         {
           "type": "slider",
-          "id": "chaos_low_gravity_price",
+          "id": "iLowGravityPrice:ChaosPrices",
           "text": "Low Gravity — Price",
-          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.low_gravity.price"
+          "help": "Points cost for !buy lowgravity",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 400 }
+        }
+      ]
+    },
+    {
+      "pageDisplayName": "Gold Amounts",
+      "content": [
+        {
+          "type": "text",
+          "text": "How much gold changes hands each time addgold/removegold fires — separate from what viewers pay in points."
+        },
+        {
+          "type": "slider",
+          "id": "iAddGoldAmount:GoldAmounts",
+          "text": "Give Gold — Amount",
+          "help": "Gold granted to the Dragonborn per !buy addgold",
+          "valueOptions": { "min": 0, "max": 5000, "step": 50, "sourceType": "ModSettingInt", "defaultValue": 100 }
+        },
+        {
+          "type": "slider",
+          "id": "iRemoveGoldAmount:GoldAmounts",
+          "text": "Steal Gold — Amount",
+          "help": "Gold taken from the Dragonborn per !buy removegold",
+          "valueOptions": { "min": 0, "max": 5000, "step": 50, "sourceType": "ModSettingInt", "defaultValue": 100 }
         }
       ]
     },
@@ -60,31 +103,27 @@
       "content": [
         {
           "type": "slider",
-          "id": "invert_controls_duration",
+          "id": "iInvertDuration:Timers",
           "text": "Invert Controls — Duration (seconds)",
-          "valueOptions": { "min": 5, "max": 120, "step": 5, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.invert_controls.duration_seconds"
+          "valueOptions": { "min": 5, "max": 120, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 20 }
         },
         {
           "type": "slider",
-          "id": "low_gravity_duration",
+          "id": "iLowGravityDuration:Timers",
           "text": "Low Gravity — Duration (seconds)",
-          "valueOptions": { "min": 5, "max": 180, "step": 5, "sourceType": "ModSettingInt" },
-          "settingId": "chaos.low_gravity.duration_seconds"
+          "valueOptions": { "min": 5, "max": 180, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 30 }
         },
         {
           "type": "slider",
-          "id": "poll_interval",
+          "id": "iPollInterval:Timers",
           "text": "Chat Vote — Auto-poll Interval (minutes)",
-          "valueOptions": { "min": 0, "max": 60, "step": 1, "sourceType": "ModSettingInt" },
-          "settingId": "poll.interval_minutes"
+          "valueOptions": { "min": 0, "max": 60, "step": 1, "sourceType": "ModSettingInt", "defaultValue": 15 }
         },
         {
           "type": "slider",
-          "id": "poll_duration",
+          "id": "iPollDuration:Timers",
           "text": "Chat Vote — Voting Window (seconds)",
-          "valueOptions": { "min": 15, "max": 300, "step": 15, "sourceType": "ModSettingInt" },
-          "settingId": "poll.duration_seconds"
+          "valueOptions": { "min": 15, "max": 300, "step": 15, "sourceType": "ModSettingInt", "defaultValue": 60 }
         }
       ]
     }

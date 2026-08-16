@@ -24,6 +24,7 @@ builder.Services.Configure<OverlayOptions>(builder.Configuration.GetSection("Ove
 builder.Services.AddSingleton<PointsEconomyService>();
 builder.Services.AddSingleton<ModeratorTokenStore>();
 builder.Services.AddSingleton<HelixApiService>();
+builder.Services.AddSingleton<ChaosSettingsCache>();
 builder.Services.AddHostedService<PassiveIncomeService>();
 
 // BackgroundServices that also need to be resolved as concrete singletons

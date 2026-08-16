@@ -2,6 +2,7 @@
 
 #include "Bridge/MessageQueue.h"
 #include "Bridge/Protocol.h"
+#include "Bridge/SettingsSync.h"
 
 #include <Windows.h>
 
@@ -81,6 +82,7 @@ namespace STE::Bridge
 
             _connected.store(true);
             logger::info("TwitchBridge connected");
+            PushSettingsSyncEvent();
 
             std::string lineBuffer;
             std::vector<char> readBuf(kBufferSize);

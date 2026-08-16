@@ -220,10 +220,14 @@ bool Function ExecuteGoldDelta(bool isAdd)
     if !player
         return false
     endif
-    int amount = STE_Native.GetCommandArgInt("amount", 100)
-    if !isAdd
-        amount = -amount
+
+    int amount
+    if isAdd
+        amount = STE_Native.GetSettingInt("chaos.add_gold.amount", 100)
+    else
+        amount = -STE_Native.GetSettingInt("chaos.remove_gold.amount", 100)
     endif
+
     player.AddItem(Gold001, amount, true)
     return true
 EndFunction

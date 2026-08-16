@@ -40,9 +40,15 @@ warnings that cascade into false "is not a function" errors on real functions.
 Compiled `.pex` files are intentionally not committed (see `.gitignore`) —
 build them locally or as part of a release pipeline.
 
+`STE_MCMConfig.psc` extends MCM Helper's own `MCM_ConfigBase`, so its script
+source (wherever MCM Helper's own mod files are installed — typically
+alongside its own `Scripts\Source\` under your Skyrim `Data\`) needs to be on
+the `-i` import list too, alongside the two paths below.
+
 ```powershell
-PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\STE_MCMConfig.psc      -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
 ```
 
 The compiled `.pex` files also need to be copied into
@@ -95,3 +101,12 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    had no way to be wired up through the GUI.
 4. Build a plugin (`.esp`/`.esl`) containing the quest and save it alongside
    this `Data/` tree.
+5. On that same quest's Scripts tab, attach `STE_MCMConfig.psc` as a second
+   script (a Quest form can carry more than one). It has no properties to
+   fill in — it only implements `OnSettingChange` to mirror MCM Helper's own
+   slider values into this mod's settings store (see the script's own header
+   comment and `Data/MCM/Config/SkyrimTwitchExpansion/config.json` for the
+   menu itself). Save. The "Twitch Expansion" menu should now appear under
+   Mod Configuration in-game, with live-editable chaos-command prices, the
+   gold amounts granted/stolen by `!buy addgold`/`!buy removegold`, and
+   effect durations.

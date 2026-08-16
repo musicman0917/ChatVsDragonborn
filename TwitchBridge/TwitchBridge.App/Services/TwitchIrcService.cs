@@ -46,6 +46,7 @@ public sealed class TwitchIrcService : BackgroundService
     private readonly PointsOptions _pointsOptions;
     private readonly PointsEconomyService _points;
     private readonly HelixApiService _helix;
+    private readonly ChaosSettingsCache _chaosSettings;
     private readonly SkyrimIpcClient _skyrim;
     private readonly OverlayHttpServer _overlay;
     private TwitchClient? _client;
@@ -56,6 +57,7 @@ public sealed class TwitchIrcService : BackgroundService
         IOptions<PointsOptions> pointsOptions,
         PointsEconomyService points,
         HelixApiService helix,
+        ChaosSettingsCache chaosSettings,
         SkyrimIpcClient skyrim,
         OverlayHttpServer overlay)
     {
@@ -64,6 +66,7 @@ public sealed class TwitchIrcService : BackgroundService
         _pointsOptions = pointsOptions.Value;
         _points = points;
         _helix = helix;
+        _chaosSettings = chaosSettings;
         _skyrim = skyrim;
         _overlay = overlay;
 
@@ -91,6 +94,10 @@ public sealed class TwitchIrcService : BackgroundService
                 break;
             case "engine_event":
                 _logger.LogInformation("Engine event: {Message}", evt.Message);
+                break;
+            case "settings_sync":
+                _chaosSettings.Apply(evt.Data);
+                _logger.LogInformation("Synced {Count} chaos setting(s) from Skyrim", evt.Data.Count);
                 break;
         }
     }
@@ -257,6 +264,23 @@ public sealed class TwitchIrcService : BackgroundService
         ["cheese"] = "spawn_cheese",
     };
 
+    // Used only until the first settings_sync arrives from Skyrim (or if the
+    // game/plugin never connects at all) -- kept identical to
+    // SKSEPlugin/src/Settings/Settings.cpp's own defaults so pricing is
+    // sane either way, live-synced or not.
+    private static readonly Dictionary<string, int> DefaultPrices = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["ragdoll"] = 50,
+        ["earthquake"] = 150,
+        ["dragon"] = 1000,
+        ["chickens"] = 200,
+        ["invert"] = 300,
+        ["lowgravity"] = 400,
+        ["addgold"] = 50,
+        ["removegold"] = 150,
+        ["cheese"] = 75,
+    };
+
     private async Task HandleBuyCommandAsync(string viewer, string action)
     {
         if (!ActionCommandTypes.TryGetValue(action, out var commandType))
@@ -265,14 +289,11 @@ public sealed class TwitchIrcService : BackgroundService
             return;
         }
 
-        // NOTE: prices are cached from Skyrim's live settings file in a real
-        // implementation (Phase 6); this scaffold uses a flat placeholder so
-        // the purchase flow is demonstrable end-to-end without that wiring.
-        const int placeholderPrice = 100;
+        var price = _chaosSettings.GetInt(ActionPriceKeys[action], DefaultPrices[action]);
 
-        if (!await _points.TrySpendAsync(viewer, placeholderPrice))
+        if (!await _points.TrySpendAsync(viewer, price))
         {
-            SendChatMessage($"@{viewer} you don't have enough points for {action} ({placeholderPrice} needed).");
+            SendChatMessage($"@{viewer} you don't have enough points for {action} ({price} needed).");
             return;
         }
 
@@ -280,12 +301,12 @@ public sealed class TwitchIrcService : BackgroundService
         {
             Type = commandType,
             Viewer = viewer,
-            Price = placeholderPrice,
+            Price = price,
         };
 
         await _skyrim.SendAsync(command);
         await _overlay.BroadcastAsync(new { type = "toast", text = $"{viewer} bought {action}!" });
-        _logger.LogInformation("Queued chaos command {Type} from {Viewer}", commandType, viewer);
+        _logger.LogInformation("Queued chaos command {Type} from {Viewer} for {Price} points", commandType, viewer, price);
     }
 
     // Mod/broadcaster-only point grant: "!give @username <amount>". Useful

@@ -107,9 +107,16 @@ line), never a pointer or callback.
 
 The C++ plugin owns the canonical settings (`Data/SKSE/Plugins/SkyrimTwitchExpansion.ini`
 + a live JSON overlay for prices/timers so the streamer can hot-edit without restarting).
-An MCM Helper-based menu (`Data/MCM/Config/SkyrimTwitchExpansion/config.json`) reads/writes
-those values through the same native function surface Papyrus already uses, so "no restart
-required" falls out of the existing polling design rather than needing a second code path.
+An MCM Helper-based menu (`Data/MCM/Config/SkyrimTwitchExpansion/config.json`) persists
+its own slider values to its own file under `Data/MCM/Settings/`, separate from ours;
+`Data/Scripts/Source/STE_MCMConfig.psc` bridges each change into the plugin's settings
+store through the same native function surface Papyrus already uses
+(`ChaosNativeFunctions::GetSetting/SetSetting`), so "no restart required" falls out of the
+existing polling design rather than needing a second code path. TwitchBridge has no fixed
+relationship to the game's install directory, so instead of also reading that settings
+JSON file directly, the plugin pushes a `settings_sync` OutboundEvent over the existing
+pipe (on connect, and again whenever a `chaos.*` key changes) — see
+`SKSEPlugin/src/Settings/Settings.h`.
 
 ## 5. Update Checker
 

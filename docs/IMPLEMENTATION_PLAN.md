@@ -79,11 +79,19 @@ See `ARCHITECTURE.md` for the data-flow diagram and threading rules referenced b
 
 ## Phase 6 — In-Game Settings Menu (MCM)
 
-- [ ] `Data/MCM/Config/SkyrimTwitchExpansion/config.json` (MCM Helper schema) — sliders/
-      toggles for prices, cooldowns, poll interval, effect enable flags.
-- [ ] Wire MCM reads/writes through `ChaosNativeFunctions::GetSetting/SetSetting`, which
-      persist to the same live-editable JSON the bridge and plugin both read, so changes
-      apply without a restart (per `ARCHITECTURE.md` §4).
+- [x] `Data/MCM/Config/SkyrimTwitchExpansion/config.json` (verified against MCM Helper's
+      real schema/wiki, not guessed) — sliders for every chaos-command price, the gold
+      amounts granted/stolen by addgold/removegold, and effect durations.
+- [x] `Data/Scripts/Source/STE_MCMConfig.psc` (`extends MCM_ConfigBase`) — bridges MCM
+      Helper's own `ModSettingInt` storage into `ChaosNativeFunctions::GetSetting/
+      SetSetting` via `OnSettingChange`, since MCM Helper persists to its own file under
+      `Data/MCM/Settings/`, separate from ours.
+- [x] TwitchBridge learns about `chaos.*` changes via a `settings_sync` OutboundEvent
+      pushed over the existing pipe (on connect, and on every `SetSetting` change) rather
+      than reading the plugin's settings JSON directly — see `SKSEPlugin/src/Settings/
+      Settings.h` for why (TwitchBridge has no fixed relationship to the game's install
+      path). `!buy` now spends the live-synced price instead of a flat placeholder.
+- [ ] Toggles for enabling/disabling individual effects, and cooldowns per effect.
 
 ## Phase 7 — Native Engine Hooks (CommonLibSSE)
 

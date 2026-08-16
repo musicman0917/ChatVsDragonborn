@@ -21,6 +21,8 @@ namespace STE
                 { "chaos.add_gold.price", "50" },
                 { "chaos.remove_gold.price", "150" },
                 { "chaos.spawn_cheese.price", "75" },
+                { "chaos.add_gold.amount", "100" },
+                { "chaos.remove_gold.amount", "100" },
                 { "poll.interval_minutes", "15" },
                 { "poll.duration_seconds", "60" },
             });
@@ -84,5 +86,17 @@ namespace STE
         } catch (const std::exception&) {
             return defaultValue;
         }
+    }
+
+    json::json Settings::GetAllWithPrefix(const std::string& prefix) const
+    {
+        std::lock_guard lock(_mutex);
+        auto result = json::json::object();
+        for (const auto& [key, value] : _values.items()) {
+            if (key.rfind(prefix, 0) == 0 && value.is_string()) {
+                result[key] = value;
+            }
+        }
+        return result;
     }
 }
