@@ -77,7 +77,7 @@ namespace STE::Papyrus
             // flag writes both funnel through here. Only chaos.* changes
             // are worth telling TwitchBridge about -- see Settings.h.
             if (key.rfind("chaos.", 0) == 0) {
-                PushSettingsSyncEvent();
+                Bridge::PushSettingsSyncEvent();
             }
         }
 
