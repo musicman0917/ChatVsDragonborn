@@ -106,7 +106,7 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    fill in — it only implements `OnSettingChange` to mirror MCM Helper's own
    slider values into this mod's settings store (see the script's own header
    comment and `Data/MCM/Config/SkyrimTwitchExpansion/config.json` for the
-   menu itself). Save. The "Twitch Expansion" menu should now appear under
+   menu itself). Save. The "ChatVsDragonborn" menu should now appear under
    Mod Configuration in-game, with live-editable chaos-command prices, the
    gold amounts granted/stolen by `!buy addgold`/`!buy removegold`, and
    effect durations.

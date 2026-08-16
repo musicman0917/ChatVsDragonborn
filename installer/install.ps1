@@ -70,4 +70,4 @@ Write-Host ""
 Write-Host "Done. Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Edit '$BridgeInstallPath\appsettings.json' with your Twitch channel/bot credentials."
 Write-Host "  2. Launch Skyrim once, then run TwitchBridge.App.exe from '$BridgeInstallPath'."
-Write-Host "  3. Open the MCM menu in-game (Twitch Expansion) to tune prices/timers."
+Write-Host "  3. Open the MCM menu in-game (ChatVsDragonborn) to tune prices/timers."

@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/Exit-9B/MCM-Helper/main/docs/config.schema.json",
   "modName": "SkyrimTwitchExpansion",
-  "displayName": "Twitch Expansion",
+  "displayName": "ChatVsDragonborn",
   "pages": [
     {
       "pageDisplayName": "Chaos Prices",
