@@ -35,21 +35,24 @@ ActorBase Property ChaosDragonActorBase Auto
 ActorBase Property ChaosChickenBase Auto
 { An NPC_ record (e.g. the vanilla "Chicken" ActorBase) — PlaceActorAtMe
   needs an ActorBase template, not a placed Actor reference. }
-Form Property ChaosCheeseItem1 Auto
-{ Fill in with a vanilla cheese Form in the Creation Kit, e.g. FoodCheeseWheel01A. }
-Form Property ChaosCheeseItem2 Auto
+Potion Property ChaosCheeseItem1 Auto
+{ Fill in with a vanilla cheese item in the Creation Kit, e.g. FoodCheeseWheel01A. }
+Potion Property ChaosCheeseItem2 Auto
 { e.g. FoodCheeseWheel01B. }
-Form Property ChaosCheeseItem3 Auto
+Potion Property ChaosCheeseItem3 Auto
 { e.g. FoodCheeseWheel02A. }
-Form Property ChaosCheeseItem4 Auto
+Potion Property ChaosCheeseItem4 Auto
 { e.g. FoodCheeseWheel02B.
-  Four separate scalar Form properties rather than a Form[] array: the
-  Creation Kit's array-editing dialog for Form[] Properties only offers a
-  tiny non-functional "Pick Object" combo box (similar to the LeveledActor
-  picker limitation elsewhere in this script) with no working
-  drag-and-drop or Auto-Fill path, whereas scalar Form properties use the
-  normal, reliable Edit Value picker. ExecuteSpawnCheese() picks one of
-  the four at random per call. }
+  Typed as Potion, not the generic Form — Potion is the actual Papyrus
+  script type for ALCH records (Skyrim shares one script type across
+  potions, poisons, and food; that's why the cheese wheels show as ALCH
+  in the Object Window). The CK's "Pick Object" picker can't build a
+  search/browse list for the fully generic Form type (it showed only two
+  unrelated system forms no matter what was selected in the Object
+  Window, for both this and an earlier Form[] array attempt) — Potion is
+  specific enough for the picker to actually work, and still passes into
+  PlaceAtMe() fine since Potion is itself a Form. ExecuteSpawnCheese()
+  picks one of the four at random per call. }
 
 ; --- Lifecycle --------------------------------------------------------------
 

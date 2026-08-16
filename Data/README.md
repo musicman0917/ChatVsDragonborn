@@ -67,15 +67,19 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    NPC_ record for a hostile dragon, e.g. the vanilla `EncDragon01Fire`),
    `ChaosChickenBase` (an `ActorBase` NPC_ record, e.g. the vanilla
    `EncChicken`), and `ChaosCheeseItem1`-`ChaosCheeseItem4` (four separate
-   scalar `Form` properties — e.g. the vanilla `FoodCheeseWheel01A`,
+   `Potion` properties — e.g. the vanilla `FoodCheeseWheel01A`,
    `FoodCheeseWheel01B`, `FoodCheeseWheel02A`, `FoodCheeseWheel02B`;
    `ExecuteSpawnCheese()` picks one at random per `!buy cheese`). These are
-   four scalar properties rather than one `Form[]` array — the CK's
-   array-editing dialog for `Form[]` only offers a non-functional "Pick
-   Object" combo box with no working drag-and-drop or Auto-Fill path,
-   while scalar `Form` properties use the normal, reliable Edit Value
-   picker (drag-and-drop from the Object Window, or select-in-Object-
-   Window-then-Auto-Fill). Both actor properties are deliberately concrete
+   typed `Potion`, not the generic `Form` — `Potion` is the real Papyrus
+   script type for ALCH records (Skyrim shares one script type across
+   potions, poisons, and food), and the CK's "Pick Object" picker cannot
+   build a working search/browse list for the fully generic `Form` type
+   (confirmed live: it showed only two unrelated system forms regardless
+   of Object Window selection, for both a scalar `Form` property and an
+   earlier `Form[]` array attempt). `Potion` is specific enough for the
+   picker — and drag-and-drop/Auto-Fill from the Object Window — to work
+   normally, and still passes into `PlaceAtMe()` fine since `Potion` is
+   itself a `Form`. Both actor properties are deliberately concrete
    `ActorBase` templates rather than `LeveledActor` lists — `LeveledActor`
    forms are both harder to place via `PlaceActorAtMe` (which needs a
    concrete `ActorBase`, not a leveled list — `PlaceAtMe` handles leveled
