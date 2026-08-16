@@ -16,14 +16,16 @@ public sealed class HelixApiService
     private readonly ILogger<HelixApiService> _logger;
     private readonly TwitchAPI _api;
     private readonly TwitchOptions _options;
+    private readonly ModeratorTokenStore _moderatorToken;
     private readonly Dictionary<string, string> _userIdCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly SemaphoreSlim _resolveLock = new(1, 1);
     private string? _broadcasterId;
 
-    public HelixApiService(ILogger<HelixApiService> logger, IOptions<TwitchOptions> options)
+    public HelixApiService(ILogger<HelixApiService> logger, IOptions<TwitchOptions> options, ModeratorTokenStore moderatorToken)
     {
         _logger = logger;
         _options = options.Value;
+        _moderatorToken = moderatorToken;
         _api = new TwitchAPI();
         _api.Settings.ClientId = _options.ClientId;
         _api.Settings.Secret = _options.ClientSecret;
@@ -45,9 +47,15 @@ public sealed class HelixApiService
 
     public async Task<TimeSpan?> GetFollowAgeAsync(string broadcasterId, string userId, CancellationToken ct = default)
     {
+        var token = await _moderatorToken.GetAccessTokenAsync(ct);
+        if (token is null)
+        {
+            return null;
+        }
+
         try
         {
-            var response = await _api.Helix.Channels.GetChannelFollowersAsync(broadcasterId, userId, accessToken: _options.ModeratorAccessToken);
+            var response = await _api.Helix.Channels.GetChannelFollowersAsync(broadcasterId, userId, accessToken: token);
             var follow = response.Data.FirstOrDefault();
             return follow is null ? null : DateTimeOffset.UtcNow - DateTimeOffset.Parse(follow.FollowedAt);
         }
@@ -60,18 +68,19 @@ public sealed class HelixApiService
 
     /// <summary>
     /// Checks whether <paramref name="username"/> currently follows the
-    /// broadcaster channel (Twitch:Channel). Requires
-    /// Twitch:ModeratorAccessToken to be set to a user token -- belonging to
-    /// the broadcaster or a mod -- carrying the moderator:read:followers
-    /// scope; the bot's own chat:read/chat:edit token cannot make this call
-    /// (that's a Twitch Helix requirement, not a TwitchBridge choice). Returns
-    /// false rather than throwing on any failure -- missing token, unresolved
+    /// broadcaster channel (Twitch:Channel). Requires a moderator-scoped
+    /// token (see ModeratorTokenStore) -- belonging to the broadcaster or a
+    /// mod -- carrying the moderator:read:followers scope; the bot's own
+    /// chat:read/chat:edit token cannot make this call (that's a Twitch
+    /// Helix requirement, not a TwitchBridge choice). Returns false rather
+    /// than throwing on any failure -- missing/expired token, unresolved
     /// user, network error -- so a misconfigured follow-bonus feature just
     /// means nobody gets the bonus rather than crashing chat handling.
     /// </summary>
     public async Task<bool> IsFollowingAsync(string username, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(_options.ModeratorAccessToken))
+        var token = await _moderatorToken.GetAccessTokenAsync(ct);
+        if (token is null)
         {
             return false;
         }
@@ -85,8 +94,7 @@ public sealed class HelixApiService
                 return false;
             }
 
-            var response = await _api.Helix.Channels.GetChannelFollowersAsync(
-                broadcasterId, userId, accessToken: _options.ModeratorAccessToken);
+            var response = await _api.Helix.Channels.GetChannelFollowersAsync(broadcasterId, userId, accessToken: token);
             return response.Data.Length > 0;
         }
         catch (Exception ex)

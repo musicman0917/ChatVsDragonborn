@@ -22,6 +22,7 @@ builder.Services.Configure<SkyrimBridgeOptions>(builder.Configuration.GetSection
 builder.Services.Configure<OverlayOptions>(builder.Configuration.GetSection("Overlay"));
 
 builder.Services.AddSingleton<PointsEconomyService>();
+builder.Services.AddSingleton<ModeratorTokenStore>();
 builder.Services.AddSingleton<HelixApiService>();
 builder.Services.AddHostedService<PassiveIncomeService>();
 

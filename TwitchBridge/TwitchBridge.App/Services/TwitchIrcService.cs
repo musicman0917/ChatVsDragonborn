@@ -21,9 +21,14 @@ public sealed class TwitchOptions
     /// carrying moderator:read:followers. Only used by HelixApiService for
     /// the one-time follow-bonus check; leave blank to disable that feature
     /// entirely (ShouldCheckFollowBonusAsync/IsFollowingAsync both degrade to
-    /// "no bonus" rather than erroring).
+    /// "no bonus" rather than erroring). Only ever read once, as the initial
+    /// seed -- see ModeratorTokenStore, which takes over persisting/
+    /// refreshing it after the first run.
     /// </summary>
     public string ModeratorAccessToken { get; set; } = "";
+
+    /// <summary>The refresh token paired with ModeratorAccessToken. Required for auto-refresh; without it the seeded access token is used until it expires and then the follow-bonus feature silently stops working.</summary>
+    public string ModeratorRefreshToken { get; set; } = "";
 }
 
 /// <summary>
