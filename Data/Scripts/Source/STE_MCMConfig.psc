@@ -29,7 +29,9 @@ Scriptname STE_MCMConfig extends MCM_ConfigBase
 ; what registers the SKICP_configManagerReady listener in the first place.
 Event OnInit()
     ModName = "SkyrimTwitchExpansion"
+    Debug.Trace("STE_MCMConfig.OnInit: ModName set to '" + ModName + "' before calling parent.OnInit()")
     parent.OnInit()
+    Debug.Trace("STE_MCMConfig.OnInit: ModName is '" + ModName + "' after parent.OnInit() returned")
 EndEvent
 
 ; One entry per interactive control in config.json, mapping its "id" to the
