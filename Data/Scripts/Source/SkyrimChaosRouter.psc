@@ -54,6 +54,54 @@ Potion Property ChaosCheeseItem4 Auto
   PlaceAtMe() fine since Potion is itself a Form. ExecuteSpawnCheese()
   picks one of the four at random per call. }
 
+; --- Item/scroll grants ------------------------------------------------------
+; Same reasoning as the cheese properties above: each is typed as the most
+; specific real Papyrus type for its record (Potion for ALCH food, Ammo for
+; arrows, MiscObject for crafting materials, SoulGem for soul gems, Scroll
+; for SCRL records) rather than the generic Form, since that's what makes
+; the CK's picker actually work. All handled by the shared ExecuteGiveItem()
+; below rather than one function each.
+
+Potion Property ChaosGiveApples Auto
+{ e.g. the vanilla Apple. }
+Ammo Property ChaosGiveArrows Auto
+{ e.g. the vanilla Iron Arrow. }
+Potion Property ChaosGiveBakedPotatoes Auto
+{ e.g. the vanilla Baked Potato. }
+MiscObject Property ChaosGiveDiamond Auto
+{ e.g. the vanilla flawless/regular Diamond. }
+MiscObject Property ChaosGiveDragonBone Auto
+{ Vanilla Dragon Bone. }
+MiscObject Property ChaosGiveDragonScales Auto
+{ Vanilla Dragon Scales. }
+MiscObject Property ChaosGiveGoldIngot Auto
+{ Vanilla Gold Ingot. }
+MiscObject Property ChaosGiveIronIngot Auto
+{ Vanilla Iron Ingot. }
+Potion Property ChaosGivePotatoes Auto
+{ e.g. the vanilla raw Potato. }
+MiscObject Property ChaosGiveSilverIngot Auto
+{ Vanilla Silver Ingot. }
+SoulGem Property ChaosGiveSoulGemCommon Auto
+{ A common (not petty/grand) Soul Gem, empty or filled. }
+
+Scroll Property ChaosScrollBlizzard Auto
+Scroll Property ChaosScrollConjureFlameAtronach Auto
+Scroll Property ChaosScrollConjureFrostAtronach Auto
+Scroll Property ChaosScrollConjureStormAtronach Auto
+Scroll Property ChaosScrollFlameThrall Auto
+Scroll Property ChaosScrollFrostThrall Auto
+Scroll Property ChaosScrollHarmony Auto
+Scroll Property ChaosScrollHysteria Auto
+Scroll Property ChaosScrollInvisibility Auto
+Scroll Property ChaosScrollMayhem Auto
+Scroll Property ChaosScrollStormThrall Auto
+Scroll Property ChaosScrollWaterBreathing Auto
+{ All twelve are vanilla scrolls, found in the Object Window under their
+  matching "Scroll of ..." names. Granted to the Dragonborn's inventory
+  like any other item grant, not cast automatically -- "Activate" in the
+  chat command name just means "use !buy" the same as everything else. }
+
 ; --- Lifecycle --------------------------------------------------------------
 
 Event OnInit()
@@ -74,7 +122,21 @@ EndEvent
 ;   [0] id            (echoed back via STE_Native.ReportCommandResult)
 ;   [1] type          ("ragdoll" | "spawn_dragon" | "spawn_chickens" |
 ;                       "earthquake" | "invert_controls" | "add_gold" |
-;                       "remove_gold" | "low_gravity" | "spawn_cheese")
+;                       "remove_gold" | "low_gravity" | "spawn_cheese" |
+;                       "cheese_splosion" | "give_10_gold" | "give_100_gold" |
+;                       "give_1000_gold" | "give_apples" | "give_arrows" |
+;                       "give_baked_potatoes" | "give_diamond" |
+;                       "give_dragon_bone" | "give_dragon_scales" |
+;                       "give_gold_ingot" | "give_iron_ingot" |
+;                       "give_potatoes" | "give_silver_ingot" |
+;                       "give_soul_gem_common" | "scroll_blizzard" |
+;                       "scroll_conjure_flame_atronach" |
+;                       "scroll_conjure_frost_atronach" |
+;                       "scroll_conjure_storm_atronach" | "scroll_flame_thrall" |
+;                       "scroll_frost_thrall" | "scroll_harmony" |
+;                       "scroll_hysteria" | "scroll_invisibility" |
+;                       "scroll_mayhem" | "scroll_storm_thrall" |
+;                       "scroll_water_breathing")
 ;   [2] viewer        (Twitch display name, for logging/messages only)
 ;   [3] price         (points spent, as string; informational here)
 ; Any numeric arg a handler needs (chicken count, gold amount) comes from
@@ -119,6 +181,87 @@ Function RouteCommand(string[] command)
     elseif cmdType == "spawn_cheese"
         success = ExecuteSpawnCheese()
         resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItem1-4 are set in the CK).")
+    elseif cmdType == "cheese_splosion"
+        success = ExecuteCheeseSplosion()
+        resultMessage = FormatResult(success, viewer, "triggered a CHEESE-SPLOSION!", "cheese-splosion failed (check ChaosCheeseItem1-4 are set in the CK).")
+    elseif cmdType == "give_10_gold"
+        success = ExecuteGiveGold(10)
+        resultMessage = FormatResult(success, viewer, "got 10 gold!", "give gold failed (check Gold001 is set in the CK).")
+    elseif cmdType == "give_100_gold"
+        success = ExecuteGiveGold(100)
+        resultMessage = FormatResult(success, viewer, "got 100 gold!", "give gold failed (check Gold001 is set in the CK).")
+    elseif cmdType == "give_1000_gold"
+        success = ExecuteGiveGold(1000)
+        resultMessage = FormatResult(success, viewer, "got 1000 gold!", "give gold failed (check Gold001 is set in the CK).")
+    elseif cmdType == "give_apples"
+        success = ExecuteGiveItem(ChaosGiveApples, 1)
+        resultMessage = FormatResult(success, viewer, "got an apple!", "give apples failed (check ChaosGiveApples is set in the CK).")
+    elseif cmdType == "give_arrows"
+        success = ExecuteGiveItem(ChaosGiveArrows, 20)
+        resultMessage = FormatResult(success, viewer, "got a quiver of arrows!", "give arrows failed (check ChaosGiveArrows is set in the CK).")
+    elseif cmdType == "give_baked_potatoes"
+        success = ExecuteGiveItem(ChaosGiveBakedPotatoes, 1)
+        resultMessage = FormatResult(success, viewer, "got a baked potato!", "give baked potatoes failed (check ChaosGiveBakedPotatoes is set in the CK).")
+    elseif cmdType == "give_diamond"
+        success = ExecuteGiveItem(ChaosGiveDiamond, 1)
+        resultMessage = FormatResult(success, viewer, "got a diamond!", "give diamond failed (check ChaosGiveDiamond is set in the CK).")
+    elseif cmdType == "give_dragon_bone"
+        success = ExecuteGiveItem(ChaosGiveDragonBone, 1)
+        resultMessage = FormatResult(success, viewer, "got a dragon bone!", "give dragon bone failed (check ChaosGiveDragonBone is set in the CK).")
+    elseif cmdType == "give_dragon_scales"
+        success = ExecuteGiveItem(ChaosGiveDragonScales, 1)
+        resultMessage = FormatResult(success, viewer, "got dragon scales!", "give dragon scales failed (check ChaosGiveDragonScales is set in the CK).")
+    elseif cmdType == "give_gold_ingot"
+        success = ExecuteGiveItem(ChaosGiveGoldIngot, 1)
+        resultMessage = FormatResult(success, viewer, "got a gold ingot!", "give gold ingot failed (check ChaosGiveGoldIngot is set in the CK).")
+    elseif cmdType == "give_iron_ingot"
+        success = ExecuteGiveItem(ChaosGiveIronIngot, 1)
+        resultMessage = FormatResult(success, viewer, "got an iron ingot!", "give iron ingot failed (check ChaosGiveIronIngot is set in the CK).")
+    elseif cmdType == "give_potatoes"
+        success = ExecuteGiveItem(ChaosGivePotatoes, 5)
+        resultMessage = FormatResult(success, viewer, "got 5 potatoes!", "give potatoes failed (check ChaosGivePotatoes is set in the CK).")
+    elseif cmdType == "give_silver_ingot"
+        success = ExecuteGiveItem(ChaosGiveSilverIngot, 1)
+        resultMessage = FormatResult(success, viewer, "got a silver ingot!", "give silver ingot failed (check ChaosGiveSilverIngot is set in the CK).")
+    elseif cmdType == "give_soul_gem_common"
+        success = ExecuteGiveItem(ChaosGiveSoulGemCommon, 1)
+        resultMessage = FormatResult(success, viewer, "got a common soul gem!", "give soul gem failed (check ChaosGiveSoulGemCommon is set in the CK).")
+    elseif cmdType == "scroll_blizzard"
+        success = ExecuteGiveItem(ChaosScrollBlizzard, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Blizzard!", "scroll grant failed (check ChaosScrollBlizzard is set in the CK).")
+    elseif cmdType == "scroll_conjure_flame_atronach"
+        success = ExecuteGiveItem(ChaosScrollConjureFlameAtronach, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Conjure Flame Atronach!", "scroll grant failed (check ChaosScrollConjureFlameAtronach is set in the CK).")
+    elseif cmdType == "scroll_conjure_frost_atronach"
+        success = ExecuteGiveItem(ChaosScrollConjureFrostAtronach, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Conjure Frost Atronach!", "scroll grant failed (check ChaosScrollConjureFrostAtronach is set in the CK).")
+    elseif cmdType == "scroll_conjure_storm_atronach"
+        success = ExecuteGiveItem(ChaosScrollConjureStormAtronach, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Conjure Storm Atronach!", "scroll grant failed (check ChaosScrollConjureStormAtronach is set in the CK).")
+    elseif cmdType == "scroll_flame_thrall"
+        success = ExecuteGiveItem(ChaosScrollFlameThrall, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Flame Thrall!", "scroll grant failed (check ChaosScrollFlameThrall is set in the CK).")
+    elseif cmdType == "scroll_frost_thrall"
+        success = ExecuteGiveItem(ChaosScrollFrostThrall, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Frost Thrall!", "scroll grant failed (check ChaosScrollFrostThrall is set in the CK).")
+    elseif cmdType == "scroll_harmony"
+        success = ExecuteGiveItem(ChaosScrollHarmony, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Harmony!", "scroll grant failed (check ChaosScrollHarmony is set in the CK).")
+    elseif cmdType == "scroll_hysteria"
+        success = ExecuteGiveItem(ChaosScrollHysteria, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Hysteria!", "scroll grant failed (check ChaosScrollHysteria is set in the CK).")
+    elseif cmdType == "scroll_invisibility"
+        success = ExecuteGiveItem(ChaosScrollInvisibility, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Invisibility!", "scroll grant failed (check ChaosScrollInvisibility is set in the CK).")
+    elseif cmdType == "scroll_mayhem"
+        success = ExecuteGiveItem(ChaosScrollMayhem, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Mayhem!", "scroll grant failed (check ChaosScrollMayhem is set in the CK).")
+    elseif cmdType == "scroll_storm_thrall"
+        success = ExecuteGiveItem(ChaosScrollStormThrall, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Storm Thrall!", "scroll grant failed (check ChaosScrollStormThrall is set in the CK).")
+    elseif cmdType == "scroll_water_breathing"
+        success = ExecuteGiveItem(ChaosScrollWaterBreathing, 1)
+        resultMessage = FormatResult(success, viewer, "got a Scroll of Water Breathing!", "scroll grant failed (check ChaosScrollWaterBreathing is set in the CK).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
@@ -259,5 +402,57 @@ bool Function ExecuteSpawnCheese()
 
     int count = Utility.RandomInt(15, 40)
     player.PlaceAtMe(cheeseForm, count)
+    return true
+EndFunction
+
+; A bigger, pricier version of !buy cheese for viewers who want to go all in.
+; Reuses the same ChaosCheeseItem1-4 pool, just far more of it.
+bool Function ExecuteCheeseSplosion()
+    Actor player = Game.GetPlayer()
+    if !player
+        return false
+    endif
+
+    Form[] cheeseForms = new Form[4]
+    cheeseForms[0] = ChaosCheeseItem1
+    cheeseForms[1] = ChaosCheeseItem2
+    cheeseForms[2] = ChaosCheeseItem3
+    cheeseForms[3] = ChaosCheeseItem4
+
+    Form cheeseForm = None
+    int attempts = 0
+    while !cheeseForm && attempts < 10
+        cheeseForm = cheeseForms[Utility.RandomInt(0, 3)]
+        attempts += 1
+    endwhile
+
+    if !cheeseForm
+        return false
+    endif
+
+    int count = Utility.RandomInt(60, 100)
+    player.PlaceAtMe(cheeseForm, count)
+    return true
+EndFunction
+
+; Shared by every !buy give*/scroll* command -- see the "Item/scroll grants"
+; properties above. Kept as one function rather than 23 near-identical ones.
+bool Function ExecuteGiveItem(Form itemForm, int quantity)
+    Actor player = Game.GetPlayer()
+    if !player || !itemForm
+        return false
+    endif
+    player.AddItem(itemForm, quantity, true)
+    return true
+EndFunction
+
+; Shared by !buy give10gold/give100gold/give1000gold -- reuses the same
+; Gold001 property ExecuteGoldDelta() already uses.
+bool Function ExecuteGiveGold(int amount)
+    Actor player = Game.GetPlayer()
+    if !player
+        return false
+    endif
+    player.AddItem(Gold001, amount, true)
     return true
 EndFunction

@@ -132,6 +132,189 @@
           "valueOptions": { "min": 15, "max": 300, "step": 15, "sourceType": "ModSettingInt", "defaultValue": 60 }
         }
       ]
+    },
+    {
+      "pageDisplayName": "Item Prices",
+      "content": [
+        {
+          "type": "text",
+          "text": "Prices for !buy commands that hand the Dragonborn an item or gold, rather than triggering an effect."
+        },
+        {
+          "type": "slider",
+          "id": "iCheeseSplosionPrice:Items",
+          "text": "Cheese-splosion — Price",
+          "help": "Points cost for !buy cheesesplosion (60-100 cheese items, vs. 15-40 for the regular !buy cheese)",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iGive10GoldPrice:Items",
+          "text": "Give 10 Gold — Price",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 10 }
+        },
+        {
+          "type": "slider",
+          "id": "iGive100GoldPrice:Items",
+          "text": "Give 100 Gold — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 100 }
+        },
+        {
+          "type": "slider",
+          "id": "iGive1000GoldPrice:Items",
+          "text": "Give 1000 Gold — Price",
+          "valueOptions": { "min": 0, "max": 5000, "step": 50, "sourceType": "ModSettingInt", "defaultValue": 1000 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveApplesPrice:Items",
+          "text": "Give Apples — Price",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 20 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveArrowsPrice:Items",
+          "text": "Give Arrows — Price",
+          "help": "Grants 20 arrows",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 40 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveBakedPotatoesPrice:Items",
+          "text": "Give Baked Potatoes — Price",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 20 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveDiamondPrice:Items",
+          "text": "Give Diamond — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 300 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveDragonBonePrice:Items",
+          "text": "Give Dragon Bone — Price",
+          "valueOptions": { "min": 0, "max": 1000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveDragonScalesPrice:Items",
+          "text": "Give Dragon Scales — Price",
+          "valueOptions": { "min": 0, "max": 1000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveGoldIngotPrice:Items",
+          "text": "Give Gold Ingot — Price",
+          "valueOptions": { "min": 0, "max": 1000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 100 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveIronIngotPrice:Items",
+          "text": "Give Iron Ingot — Price",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 30 }
+        },
+        {
+          "type": "slider",
+          "id": "iGivePotatoesPrice:Items",
+          "text": "Give Potatoes — Price",
+          "help": "Grants 5 potatoes",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 15 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveSilverIngotPrice:Items",
+          "text": "Give Silver Ingot — Price",
+          "valueOptions": { "min": 0, "max": 500, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 60 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiveSoulGemPrice:Items",
+          "text": "Give Common Soul Gem — Price",
+          "valueOptions": { "min": 0, "max": 1000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 120 }
+        }
+      ]
+    },
+    {
+      "pageDisplayName": "Scroll Prices",
+      "content": [
+        {
+          "type": "text",
+          "text": "Prices for !buy scroll grants -- each hands the Dragonborn a scroll to use themselves, same as any other item grant."
+        },
+        {
+          "type": "slider",
+          "id": "iScrollBlizzardPrice:Scrolls",
+          "text": "Scroll of Blizzard — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 200 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollFlameAtronachPrice:Scrolls",
+          "text": "Scroll of Conjure Flame Atronach — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollFrostAtronachPrice:Scrolls",
+          "text": "Scroll of Conjure Frost Atronach — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollStormAtronachPrice:Scrolls",
+          "text": "Scroll of Conjure Storm Atronach — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 200 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollFlameThrallPrice:Scrolls",
+          "text": "Scroll of Flame Thrall — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 180 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollFrostThrallPrice:Scrolls",
+          "text": "Scroll of Frost Thrall — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 180 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollHarmonyPrice:Scrolls",
+          "text": "Scroll of Harmony — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 250 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollHysteriaPrice:Scrolls",
+          "text": "Scroll of Hysteria — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 250 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollInvisibilityPrice:Scrolls",
+          "text": "Scroll of Invisibility — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 220 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollMayhemPrice:Scrolls",
+          "text": "Scroll of Mayhem — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 300 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollStormThrallPrice:Scrolls",
+          "text": "Scroll of Storm Thrall — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 220 }
+        },
+        {
+          "type": "slider",
+          "id": "iScrollWaterBreathingPrice:Scrolls",
+          "text": "Scroll of Water Breathing — Price",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 100 }
+        }
+      ]
     }
   ]
 }

@@ -85,7 +85,34 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    earlier `Form[]` array attempt). `Potion` is specific enough for the
    picker — and drag-and-drop/Auto-Fill from the Object Window — to work
    normally, and still passes into `PlaceAtMe()` fine since `Potion` is
-   itself a `Form`. Both actor properties are deliberately concrete
+   itself a `Form`. The same reasoning applies to the item/scroll grant
+   properties below — each is typed to the specific Papyrus type matching
+   its record so the picker actually works: `Ammo` for ammunition records,
+   `MiscObject` for MISC records, `SoulGem` for SLGM records, `Scroll` for
+   SCRL records, and `Potion` again for ALCH-backed food items. Fill in:
+   `ChaosGiveApples` (a food `Potion`, e.g. `Apple`), `ChaosGiveArrows` (an
+   `Ammo`, e.g. `IronArrow` — 20 are granted per `!buy givearrows`),
+   `ChaosGiveBakedPotatoes` (a food `Potion`, e.g. `FoodBakedPotato`),
+   `ChaosGiveDiamond`/`ChaosGiveGoldIngot`/`ChaosGiveIronIngot`/
+   `ChaosGiveSilverIngot`/`ChaosGiveDragonBone`/`ChaosGiveDragonScales` (all
+   `MiscObject`, e.g. the vanilla `Diamond001`, `GoldIngot01`, `IronIngot01`,
+   `SilverIngot01`, `DragonBone`, `DragonScales`), `ChaosGivePotatoes` (a
+   food `Potion`, e.g. `FoodRawPotato` — 5 are granted per
+   `!buy givepotatoes`), `ChaosGiveSoulGemCommon` (a `SoulGem`, e.g. the
+   vanilla `SoulGemCommon`), and the 12 `ChaosScroll*` properties (all
+   `Scroll`, one per scroll command — e.g. `ChaosScrollBlizzard` →
+   `ScrollBlizzard`, `ChaosScrollConjureFlameAtronach` →
+   `ScrollConjureFlameAtronach`, `ChaosScrollConjureFrostAtronach` →
+   `ScrollConjureFrostAtronach`, `ChaosScrollConjureStormAtronach` →
+   `ScrollConjureStormAtronach`, `ChaosScrollFlameThrall` →
+   `ScrollFlameThrall`, `ChaosScrollFrostThrall` → `ScrollFrostThrall`,
+   `ChaosScrollHarmony` → `ScrollHarmony`, `ChaosScrollHysteria` →
+   `ScrollHysteria`, `ChaosScrollInvisibility` → `ScrollInvisibility`,
+   `ChaosScrollMayhem` → `ScrollMayhem`, `ChaosScrollStormThrall` →
+   `ScrollStormThrall`, `ChaosScrollWaterBreathing` →
+   `ScrollWaterBreathing`, all vanilla `SCRL` editor IDs). `!buy
+   cheesesplosion` reuses `ChaosCheeseItem1`-`4` (already set above) and
+   needs no separate property. Both actor properties are deliberately concrete
    `ActorBase` templates rather than `LeveledActor` lists — `LeveledActor`
    forms are both harder to place via `PlaceActorAtMe` (which needs a
    concrete `ActorBase`, not a leveled list — `PlaceAtMe` handles leveled

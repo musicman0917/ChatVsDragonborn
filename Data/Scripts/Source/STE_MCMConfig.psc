@@ -69,5 +69,59 @@ Event OnSettingChange(string a_ID)
         STE_Native.SetSetting("poll.interval_minutes", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iPollDuration:Timers"
         STE_Native.SetSetting("poll.duration_seconds", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iCheeseSplosionPrice:Items"
+        STE_Native.SetSetting("chaos.cheese_splosion.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGive10GoldPrice:Items"
+        STE_Native.SetSetting("chaos.give_10_gold.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGive100GoldPrice:Items"
+        STE_Native.SetSetting("chaos.give_100_gold.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGive1000GoldPrice:Items"
+        STE_Native.SetSetting("chaos.give_1000_gold.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveApplesPrice:Items"
+        STE_Native.SetSetting("chaos.give_apples.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveArrowsPrice:Items"
+        STE_Native.SetSetting("chaos.give_arrows.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveBakedPotatoesPrice:Items"
+        STE_Native.SetSetting("chaos.give_baked_potatoes.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveDiamondPrice:Items"
+        STE_Native.SetSetting("chaos.give_diamond.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveDragonBonePrice:Items"
+        STE_Native.SetSetting("chaos.give_dragon_bone.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveDragonScalesPrice:Items"
+        STE_Native.SetSetting("chaos.give_dragon_scales.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveGoldIngotPrice:Items"
+        STE_Native.SetSetting("chaos.give_gold_ingot.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveIronIngotPrice:Items"
+        STE_Native.SetSetting("chaos.give_iron_ingot.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGivePotatoesPrice:Items"
+        STE_Native.SetSetting("chaos.give_potatoes.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveSilverIngotPrice:Items"
+        STE_Native.SetSetting("chaos.give_silver_ingot.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiveSoulGemPrice:Items"
+        STE_Native.SetSetting("chaos.give_soul_gem_common.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollBlizzardPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_blizzard.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollFlameAtronachPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_conjure_flame_atronach.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollFrostAtronachPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_conjure_frost_atronach.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollStormAtronachPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_conjure_storm_atronach.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollFlameThrallPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_flame_thrall.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollFrostThrallPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_frost_thrall.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollHarmonyPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_harmony.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollHysteriaPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_hysteria.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollInvisibilityPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_invisibility.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollMayhemPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_mayhem.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollStormThrallPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_storm_thrall.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScrollWaterBreathingPrice:Scrolls"
+        STE_Native.SetSetting("chaos.scroll_water_breathing.price", GetModSettingInt(a_ID) as String)
     endif
 EndEvent
