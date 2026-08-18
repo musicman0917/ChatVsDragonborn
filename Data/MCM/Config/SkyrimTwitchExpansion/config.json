@@ -149,9 +149,9 @@
         },
         {
           "type": "slider",
-          "id": "iCheeseSplosionPrice:Items",
-          "text": "Cheese-splosion — Price",
-          "help": "Points cost for !buy cheesesplosion (60-100 cheese items, vs. 15-40 for the regular !buy cheese)",
+          "id": "iCheeseMageddonPrice:Items",
+          "text": "Cheese-mageddon — Price",
+          "help": "Points cost for !buy cheesemageddon (60-100 cheese items, vs. 15-40 for the regular !buy cheese)",
           "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
         },
         {

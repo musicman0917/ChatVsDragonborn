@@ -111,7 +111,7 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    `ChaosScrollMayhem` → `ScrollMayhem`, `ChaosScrollStormThrall` →
    `ScrollStormThrall`, `ChaosScrollWaterBreathing` →
    `ScrollWaterBreathing`, all vanilla `SCRL` editor IDs). `!buy
-   cheesesplosion` reuses `ChaosCheeseItem1`-`4` (already set above) and
+   cheesemageddon` reuses `ChaosCheeseItem1`-`4` (already set above) and
    needs no separate property. `!buy yeet` also needs no property — it
    picks its target live via `Game.FindRandomActor()` within 1500 units of
    the player (retrying up to 10 times against ones that are dead, the

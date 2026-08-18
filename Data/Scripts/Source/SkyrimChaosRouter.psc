@@ -123,7 +123,7 @@ EndEvent
 ;   [1] type          ("ragdoll" | "spawn_dragon" | "spawn_chickens" |
 ;                       "earthquake" | "invert_controls" | "add_gold" |
 ;                       "remove_gold" | "low_gravity" | "spawn_cheese" |
-;                       "cheese_splosion" | "give_10_gold" | "give_100_gold" |
+;                       "cheese_mageddon" | "give_10_gold" | "give_100_gold" |
 ;                       "give_1000_gold" | "give_apples" | "give_arrows" |
 ;                       "give_baked_potatoes" | "give_diamond" |
 ;                       "give_dragon_bone" | "give_dragon_scales" |
@@ -181,9 +181,9 @@ Function RouteCommand(string[] command)
     elseif cmdType == "spawn_cheese"
         success = ExecuteSpawnCheese()
         resultMessage = FormatResult(success, viewer, "buried you in cheese!", "cheese spawn failed (check ChaosCheeseItem1-4 are set in the CK).")
-    elseif cmdType == "cheese_splosion"
-        success = ExecuteCheeseSplosion()
-        resultMessage = FormatResult(success, viewer, "triggered a CHEESE-SPLOSION!", "cheese-splosion failed (check ChaosCheeseItem1-4 are set in the CK).")
+    elseif cmdType == "cheese_mageddon"
+        success = ExecuteCheeseMageddon()
+        resultMessage = FormatResult(success, viewer, "triggered CHEESE-MAGEDDON!", "cheese-mageddon failed (check ChaosCheeseItem1-4 are set in the CK).")
     elseif cmdType == "give_10_gold"
         success = ExecuteGiveGold(10)
         resultMessage = FormatResult(success, viewer, "got 10 gold!", "give gold failed (check Gold001 is set in the CK).")
@@ -410,7 +410,7 @@ EndFunction
 
 ; A bigger, pricier version of !buy cheese for viewers who want to go all in.
 ; Reuses the same ChaosCheeseItem1-4 pool, just far more of it.
-bool Function ExecuteCheeseSplosion()
+bool Function ExecuteCheeseMageddon()
     Actor player = Game.GetPlayer()
     if !player
         return false

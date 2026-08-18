@@ -71,8 +71,8 @@ Event OnSettingChange(string a_ID)
         STE_Native.SetSetting("poll.interval_minutes", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iPollDuration:Timers"
         STE_Native.SetSetting("poll.duration_seconds", GetModSettingInt(a_ID) as String)
-    elseif a_ID == "iCheeseSplosionPrice:Items"
-        STE_Native.SetSetting("chaos.cheese_splosion.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iCheeseMageddonPrice:Items"
+        STE_Native.SetSetting("chaos.cheese_mageddon.price", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iGive10GoldPrice:Items"
         STE_Native.SetSetting("chaos.give_10_gold.price", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iGive100GoldPrice:Items"
