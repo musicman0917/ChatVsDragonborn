@@ -125,5 +125,25 @@ Event OnSettingChange(string a_ID)
         STE_Native.SetSetting("chaos.scroll_storm_thrall.price", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iScrollWaterBreathingPrice:Scrolls"
         STE_Native.SetSetting("chaos.scroll_water_breathing.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iSuperJumpPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.super_jump.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iSuperJumpDuration:PhysicsMagic"
+        STE_Native.SetSetting("chaos.super_jump.duration_seconds", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iRagdollBlastPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.ragdoll_blast.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iTinyDovahkiinPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.tiny_dovahkiin.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iGiantDovahkiinPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.giant_dovahkiin.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iScaleEffectDuration:PhysicsMagic"
+        STE_Native.SetSetting("chaos.scale_effect.duration_seconds", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iDrunkVisionPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.drunk_vision.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iWildMagicPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.wild_magic.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iMidasWeightPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.midas_weight.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iPocketChangeBlastPrice:PhysicsMagic"
+        STE_Native.SetSetting("chaos.pocket_change_blast.price", GetModSettingInt(a_ID) as String)
     endif
 EndEvent

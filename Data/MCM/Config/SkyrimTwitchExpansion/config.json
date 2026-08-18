@@ -322,6 +322,84 @@
           "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 100 }
         }
       ]
+    },
+    {
+      "pageDisplayName": "Physics & Magic",
+      "content": [
+        {
+          "type": "text",
+          "text": "Prices and durations for the physics/scale/magic chaos commands -- Super Jump, Ragdoll Blast, Tiny/Giant Dovahkiin, Drunken Vision, Wild Magic, Midas Weight, and Pocket Change Blast."
+        },
+        {
+          "type": "slider",
+          "id": "iSuperJumpPrice:PhysicsMagic",
+          "text": "Super Jump — Price",
+          "help": "Points cost for !buy superjump",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iSuperJumpDuration:PhysicsMagic",
+          "text": "Super Jump — Duration (seconds)",
+          "valueOptions": { "min": 5, "max": 120, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 20 }
+        },
+        {
+          "type": "slider",
+          "id": "iRagdollBlastPrice:PhysicsMagic",
+          "text": "Ragdoll Blast — Price",
+          "help": "Points cost for !buy ragdollblast -- flops up to 5 nearby NPCs",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 200 }
+        },
+        {
+          "type": "slider",
+          "id": "iTinyDovahkiinPrice:PhysicsMagic",
+          "text": "Tiny Dovahkiin — Price",
+          "help": "Points cost for !buy tinydovahkiin",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 150 }
+        },
+        {
+          "type": "slider",
+          "id": "iGiantDovahkiinPrice:PhysicsMagic",
+          "text": "Giant Dovahkiin — Price",
+          "help": "Points cost for !buy giantdovahkiin",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 200 }
+        },
+        {
+          "type": "slider",
+          "id": "iScaleEffectDuration:PhysicsMagic",
+          "text": "Tiny/Giant — Duration (seconds)",
+          "help": "Shared by both Tiny and Giant Dovahkiin",
+          "valueOptions": { "min": 5, "max": 120, "step": 5, "sourceType": "ModSettingInt", "defaultValue": 20 }
+        },
+        {
+          "type": "slider",
+          "id": "iDrunkVisionPrice:PhysicsMagic",
+          "text": "Drunken Vision — Price",
+          "help": "Points cost for !buy drunkvision",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 120 }
+        },
+        {
+          "type": "slider",
+          "id": "iWildMagicPrice:PhysicsMagic",
+          "text": "Wild Magic — Price",
+          "help": "Points cost for !buy wildmagic",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 250 }
+        },
+        {
+          "type": "slider",
+          "id": "iMidasWeightPrice:PhysicsMagic",
+          "text": "The Midas Weight — Price",
+          "help": "Points cost for !buy midasweight",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 180 }
+        },
+        {
+          "type": "slider",
+          "id": "iPocketChangeBlastPrice:PhysicsMagic",
+          "text": "Pocket Change Blast — Price",
+          "help": "Points cost for !buy pocketchangeblast",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 100 }
+        }
+      ]
     }
   ]
 }

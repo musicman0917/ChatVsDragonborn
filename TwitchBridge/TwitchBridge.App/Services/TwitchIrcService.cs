@@ -277,6 +277,14 @@ public sealed class TwitchIrcService : BackgroundService
         ["scrollmayhem"] = "chaos.scroll_mayhem.price",
         ["scrollstormthrall"] = "chaos.scroll_storm_thrall.price",
         ["scrollwaterbreathing"] = "chaos.scroll_water_breathing.price",
+        ["superjump"] = "chaos.super_jump.price",
+        ["ragdollblast"] = "chaos.ragdoll_blast.price",
+        ["tinydovahkiin"] = "chaos.tiny_dovahkiin.price",
+        ["giantdovahkiin"] = "chaos.giant_dovahkiin.price",
+        ["drunkvision"] = "chaos.drunk_vision.price",
+        ["wildmagic"] = "chaos.wild_magic.price",
+        ["midasweight"] = "chaos.midas_weight.price",
+        ["pocketchangeblast"] = "chaos.pocket_change_blast.price",
     };
 
     private static readonly Dictionary<string, string> ActionCommandTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -318,6 +326,14 @@ public sealed class TwitchIrcService : BackgroundService
         ["scrollmayhem"] = "scroll_mayhem",
         ["scrollstormthrall"] = "scroll_storm_thrall",
         ["scrollwaterbreathing"] = "scroll_water_breathing",
+        ["superjump"] = "super_jump",
+        ["ragdollblast"] = "ragdoll_blast",
+        ["tinydovahkiin"] = "tiny_dovahkiin",
+        ["giantdovahkiin"] = "giant_dovahkiin",
+        ["drunkvision"] = "drunk_vision",
+        ["wildmagic"] = "wild_magic",
+        ["midasweight"] = "midas_weight",
+        ["pocketchangeblast"] = "pocket_change_blast",
     };
 
     // Used only until the first settings_sync arrives from Skyrim (or if the
@@ -363,6 +379,14 @@ public sealed class TwitchIrcService : BackgroundService
         ["scrollmayhem"] = 300,
         ["scrollstormthrall"] = 220,
         ["scrollwaterbreathing"] = 100,
+        ["superjump"] = 150,
+        ["ragdollblast"] = 200,
+        ["tinydovahkiin"] = 150,
+        ["giantdovahkiin"] = 200,
+        ["drunkvision"] = 120,
+        ["wildmagic"] = 250,
+        ["midasweight"] = 180,
+        ["pocketchangeblast"] = 100,
     };
 
     private async Task HandleBuyCommandAsync(string viewer, string action)

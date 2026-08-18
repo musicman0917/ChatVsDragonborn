@@ -117,7 +117,26 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    the player (retrying up to 10 times against ones that are dead, the
    player themself, or lack line of sight), then `PushActorAway()`s them
    with a mild 8-12 force and clears their combat/alarm state so the shove
-   doesn't turn into a fight or a bounty. Both actor properties are deliberately concrete
+   doesn't turn into a fight or a bounty. `!buy ragdollblast` is the same
+   idea applied to up to 5 nearby NPCs at once and also needs no property.
+   `!buy superjump`, `!buy tinydovahkiin`, and `!buy giantdovahkiin` need no
+   properties either — they read/restore the real `fJumpHeightMin` game
+   setting or the actor's own scale directly, with no Form involved.
+
+   Three more properties round out the "Physics & Magic" batch: `ChaosDrunkSpell`
+   (a `Spell` — any spell that applies a drunk-style visual distort/wobble to
+   the player for `!buy drunkvision`, e.g. the vanilla Skooma "high" effect
+   or a custom spell built around an ImageSpace Modifier; its own magic
+   effect duration governs how long the effect lasts, so there's no separate
+   duration setting for this one), `ChaosWildSpell1`-`3` (three `Spell`
+   properties for `!buy wildmagic` — high-cost offensive spells, e.g. the
+   vanilla Fireball, Chain Lightning, and Ice Storm; one is picked at random
+   and cast at a random nearby actor), and `ChaosMidasOre` (a `MiscObject`
+   for `!buy midasweight` — e.g. the vanilla Iron Ore, swapped in 1-for-1 for
+   the Dragonborn's gold count). `!buy pocketchangeblast` reuses `Gold001`
+   (already set above) and needs no separate property.
+
+   Both actor properties are deliberately concrete
    `ActorBase` templates rather than `LeveledActor` lists — `LeveledActor`
    forms are both harder to place via `PlaceActorAtMe` (which needs a
    concrete `ActorBase`, not a leveled list — `PlaceAtMe` handles leveled

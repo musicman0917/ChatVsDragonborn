@@ -102,7 +102,42 @@ Scroll Property ChaosScrollWaterBreathing Auto
   like any other item grant, not cast automatically -- "Activate" in the
   chat command name just means "use !buy" the same as everything else. }
 
+; --- Physics & magic --------------------------------------------------------
+
+Spell Property ChaosDrunkSpell Auto
+{ A spell that applies a drunk-style visual distort/wobble to the player for
+  !buy drunkvision -- e.g. the vanilla Skooma "high" effect, or a custom
+  spell built around an ImageSpace Modifier of your choosing. Cast directly
+  on the player; its own magic effect duration governs how long the effect
+  lasts, so no separate timer is needed here (same as drinking any real
+  in-game potion). }
+Spell Property ChaosWildSpell1 Auto
+Spell Property ChaosWildSpell2 Auto
+Spell Property ChaosWildSpell3 Auto
+{ Three high-cost offensive spells for !buy wildmagic -- e.g. the vanilla
+  Fireball, Chain Lightning, and Ice Storm. One is picked at random and cast
+  at a random nearby actor (same target-finding as !buy yeet). }
+MiscObject Property ChaosMidasOre Auto
+{ A heavy MiscObject to swap the Dragonborn's gold into for !buy
+  midasweight -- e.g. the vanilla Iron Ore, so a big gold pile becomes a
+  genuinely heavy problem. }
+
 ; --- Lifecycle --------------------------------------------------------------
+
+; Plain (non-Property) fields for Super Jump/scale-effect revert bookkeeping
+; -- deliberately not Auto properties, since the CK's Properties dialog has
+; no business exposing pure runtime state that only this script ever reads
+; or writes. Checked every poll tick in OnUpdate() below rather than via a
+; second RegisterForSingleUpdate timer, since that would fire the same
+; OnUpdate() event this script already uses for command polling and the two
+; purposes would collide.
+float _superJumpRevertAt = 0.0
+bool _superJumpActive = false
+float _origJumpHeightMin = 0.0
+
+float _scaleRevertAt = 0.0
+bool _scaleActive = false
+float _origScale = 1.0
 
 Event OnInit()
     RegisterForSingleUpdate(PollIntervalSeconds)
@@ -113,6 +148,15 @@ Event OnUpdate()
     if command.Length > 0
         RouteCommand(command)
     endif
+
+    float now = Utility.GetCurrentRealTime()
+    if _superJumpActive && now >= _superJumpRevertAt
+        RevertSuperJump()
+    endif
+    if _scaleActive && now >= _scaleRevertAt
+        RevertScale()
+    endif
+
     RegisterForSingleUpdate(PollIntervalSeconds)
 EndEvent
 
@@ -136,7 +180,10 @@ EndEvent
 ;                       "scroll_frost_thrall" | "scroll_harmony" |
 ;                       "scroll_hysteria" | "scroll_invisibility" |
 ;                       "scroll_mayhem" | "scroll_storm_thrall" |
-;                       "scroll_water_breathing" | "yeet")
+;                       "scroll_water_breathing" | "yeet" | "super_jump" |
+;                       "ragdoll_blast" | "tiny_dovahkiin" | "giant_dovahkiin" |
+;                       "drunk_vision" | "wild_magic" | "midas_weight" |
+;                       "pocket_change_blast")
 ;   [2] viewer        (Twitch display name, for logging/messages only)
 ;   [3] price         (points spent, as string; informational here)
 ; Any numeric arg a handler needs (chicken count, gold amount) comes from
@@ -265,6 +312,30 @@ Function RouteCommand(string[] command)
     elseif cmdType == "yeet"
         success = ExecuteYeet()
         resultMessage = FormatResult(success, viewer, "yeeted a nearby NPC!", "yeet failed (no valid nearby target in view).")
+    elseif cmdType == "super_jump"
+        success = ExecuteSuperJump()
+        resultMessage = FormatResult(success, viewer, "gave the Dragonborn moon legs!", "super jump failed (already active).")
+    elseif cmdType == "ragdoll_blast"
+        success = ExecuteRagdollBlast()
+        resultMessage = FormatResult(success, viewer, "sent nearby NPCs stumbling!", "ragdoll blast failed (no valid nearby targets in view).")
+    elseif cmdType == "tiny_dovahkiin"
+        success = ExecuteSetScale(0.25)
+        resultMessage = FormatResult(success, viewer, "shrunk the Dragonborn down to size!", "tiny Dovahkiin failed (a scale effect is already active).")
+    elseif cmdType == "giant_dovahkiin"
+        success = ExecuteSetScale(3.0)
+        resultMessage = FormatResult(success, viewer, "grew the Dragonborn into a giant!", "giant Dovahkiin failed (a scale effect is already active).")
+    elseif cmdType == "drunk_vision"
+        success = ExecuteDrunkVision()
+        resultMessage = FormatResult(success, viewer, "got the Dragonborn seeing double!", "drunk vision failed (check ChaosDrunkSpell is set in the CK).")
+    elseif cmdType == "wild_magic"
+        success = ExecuteWildMagic()
+        resultMessage = FormatResult(success, viewer, "unleashed wild magic!", "wild magic failed (check ChaosWildSpell1-3 are set in the CK, and that a target was in view).")
+    elseif cmdType == "midas_weight"
+        success = ExecuteMidasWeight()
+        resultMessage = FormatResult(success, viewer, "turned the Dragonborn's gold to ore!", "midas weight failed (check ChaosMidasOre is set in the CK, and the Dragonborn was carrying gold).")
+    elseif cmdType == "pocket_change_blast"
+        success = ExecutePocketChangeBlast()
+        resultMessage = FormatResult(success, viewer, "spilled the Dragonborn's gold everywhere!", "pocket change blast failed (the Dragonborn wasn't carrying any gold).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
@@ -496,5 +567,197 @@ bool Function ExecuteYeet()
     target.StopCombat()
     player.StopCombatAlarm()
 
+    return true
+EndFunction
+
+; Pushes fJumpHeightMin way up for a timed window, then restores whatever
+; value it actually found (not a hardcoded default -- respects any other
+; mod already touching this setting). Refuses to re-trigger while already
+; active so a second buy mid-effect can't leak the original value.
+bool Function ExecuteSuperJump()
+    if _superJumpActive
+        return false
+    endif
+
+    _origJumpHeightMin = Game.GetGameSettingFloat("fJumpHeightMin")
+    Game.SetGameSettingFloat("fJumpHeightMin", _origJumpHeightMin * 4.0)
+    _superJumpActive = true
+
+    int durationSeconds = STE_Native.GetSettingInt("chaos.super_jump.duration_seconds", 20)
+    _superJumpRevertAt = Utility.GetCurrentRealTime() + durationSeconds
+    return true
+EndFunction
+
+Function RevertSuperJump()
+    Game.SetGameSettingFloat("fJumpHeightMin", _origJumpHeightMin)
+    _superJumpActive = false
+EndFunction
+
+; A small-radius, low-force version of !buy yeet that flops several nearby
+; NPCs at once instead of launching one far -- same StopCombat/
+; StopCombatAlarm cleanup so it doesn't start a fight or a bounty.
+bool Function ExecuteRagdollBlast()
+    Actor player = Game.GetPlayer()
+    if !player
+        return false
+    endif
+
+    Actor[] hit = new Actor[5]
+    int hitCount = 0
+    int attempts = 0
+    while hitCount < 5 && attempts < 20
+        Actor candidate = Game.FindRandomActor(player, 800.0)
+        if candidate && candidate != player && !candidate.IsDead() && !AlreadyHit(hit, hitCount, candidate)
+            hit[hitCount] = candidate
+            hitCount += 1
+        endif
+        attempts += 1
+    endwhile
+
+    if hitCount == 0
+        return false
+    endif
+
+    int i = 0
+    while i < hitCount
+        player.PushActorAway(hit[i], 3.0)
+        hit[i].StopCombat()
+        i += 1
+    endwhile
+    player.StopCombatAlarm()
+
+    return true
+EndFunction
+
+bool Function AlreadyHit(Actor[] hit, int count, Actor candidate)
+    int i = 0
+    while i < count
+        if hit[i] == candidate
+            return true
+        endif
+        i += 1
+    endwhile
+    return false
+EndFunction
+
+; Shared by !buy tinydovahkiin (0.25) and !buy giantdovahkiin (3.0).
+; Refuses to stack a second scale change mid-effect for the same reason as
+; ExecuteSuperJump -- the original scale would otherwise be lost.
+bool Function ExecuteSetScale(float scale)
+    if _scaleActive
+        return false
+    endif
+
+    Actor player = Game.GetPlayer()
+    if !player
+        return false
+    endif
+
+    _origScale = player.GetScale()
+    player.SetScale(scale)
+    _scaleActive = true
+
+    int durationSeconds = STE_Native.GetSettingInt("chaos.scale_effect.duration_seconds", 20)
+    _scaleRevertAt = Utility.GetCurrentRealTime() + durationSeconds
+    return true
+EndFunction
+
+Function RevertScale()
+    Actor player = Game.GetPlayer()
+    if player
+        player.SetScale(_origScale)
+    endif
+    _scaleActive = false
+EndFunction
+
+; Casts ChaosDrunkSpell directly on the player -- the spell's own magic
+; effect duration governs how long it lasts, same as drinking a real potion,
+; so there's no separate revert timer to manage here.
+bool Function ExecuteDrunkVision()
+    Actor player = Game.GetPlayer()
+    if !player || !ChaosDrunkSpell
+        return false
+    endif
+    player.Cast(ChaosDrunkSpell, player)
+    return true
+EndFunction
+
+; Picks one of three configured high-cost spells at random and casts it at a
+; random nearby actor -- reuses the exact target-finding retry loop from
+; ExecuteYeet() so it can't hit the player or an actor with no line of sight.
+bool Function ExecuteWildMagic()
+    Actor player = Game.GetPlayer()
+    if !player
+        return false
+    endif
+
+    Spell[] wildSpells = new Spell[3]
+    wildSpells[0] = ChaosWildSpell1
+    wildSpells[1] = ChaosWildSpell2
+    wildSpells[2] = ChaosWildSpell3
+
+    Spell chosenSpell = None
+    int spellAttempts = 0
+    while !chosenSpell && spellAttempts < 10
+        chosenSpell = wildSpells[Utility.RandomInt(0, 2)]
+        spellAttempts += 1
+    endwhile
+
+    if !chosenSpell
+        return false
+    endif
+
+    Actor target = None
+    int targetAttempts = 0
+    while !target && targetAttempts < 10
+        Actor candidate = Game.FindRandomActor(player, 1500.0)
+        if candidate && candidate != player && !candidate.IsDead() && candidate.HasLOS(player)
+            target = candidate
+        endif
+        targetAttempts += 1
+    endwhile
+
+    if !target
+        return false
+    endif
+
+    player.Cast(chosenSpell, target)
+    return true
+EndFunction
+
+; Empties the Dragonborn's gold and replaces it 1-for-1 with ChaosMidasOre --
+; a big gold pile becomes a genuinely heavy problem instead of dead weight
+; disappearing quietly.
+bool Function ExecuteMidasWeight()
+    Actor player = Game.GetPlayer()
+    if !player || !Gold001 || !ChaosMidasOre
+        return false
+    endif
+
+    int goldCount = player.GetItemCount(Gold001)
+    if goldCount <= 0
+        return false
+    endif
+
+    player.RemoveItem(Gold001, goldCount, true)
+    player.AddItem(ChaosMidasOre, goldCount, true)
+    return true
+EndFunction
+
+; Drops the Dragonborn's entire gold count on the ground as a physics
+; object, same as manually dropping an inventory stack -- no CK property
+; needed, reuses Gold001.
+bool Function ExecutePocketChangeBlast()
+    Actor player = Game.GetPlayer()
+    if !player || !Gold001
+        return false
+    endif
+
+    int goldCount = player.GetItemCount(Gold001)
+    if goldCount <= 0
+        return false
+    endif
+
+    player.DropObject(Gold001, goldCount)
     return true
 EndFunction
