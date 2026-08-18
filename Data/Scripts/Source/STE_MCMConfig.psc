@@ -57,6 +57,8 @@ Event OnSettingChange(string a_ID)
         STE_Native.SetSetting("chaos.invert_controls.price", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iLowGravityPrice:ChaosPrices"
         STE_Native.SetSetting("chaos.low_gravity.price", GetModSettingInt(a_ID) as String)
+    elseif a_ID == "iYeetPrice:ChaosPrices"
+        STE_Native.SetSetting("chaos.yeet.price", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iAddGoldAmount:GoldAmounts"
         STE_Native.SetSetting("chaos.add_gold.amount", GetModSettingInt(a_ID) as String)
     elseif a_ID == "iRemoveGoldAmount:GoldAmounts"

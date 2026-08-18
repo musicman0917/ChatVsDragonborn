@@ -136,7 +136,7 @@ EndEvent
 ;                       "scroll_frost_thrall" | "scroll_harmony" |
 ;                       "scroll_hysteria" | "scroll_invisibility" |
 ;                       "scroll_mayhem" | "scroll_storm_thrall" |
-;                       "scroll_water_breathing")
+;                       "scroll_water_breathing" | "yeet")
 ;   [2] viewer        (Twitch display name, for logging/messages only)
 ;   [3] price         (points spent, as string; informational here)
 ; Any numeric arg a handler needs (chicken count, gold amount) comes from
@@ -262,6 +262,9 @@ Function RouteCommand(string[] command)
     elseif cmdType == "scroll_water_breathing"
         success = ExecuteGiveItem(ChaosScrollWaterBreathing, 1)
         resultMessage = FormatResult(success, viewer, "got a Scroll of Water Breathing!", "scroll grant failed (check ChaosScrollWaterBreathing is set in the CK).")
+    elseif cmdType == "yeet"
+        success = ExecuteYeet()
+        resultMessage = FormatResult(success, viewer, "yeeted a nearby NPC!", "yeet failed (no valid nearby target in view).")
     else
         resultMessage = "Unknown command type: " + cmdType
         Debug.Trace("SkyrimChaosRouter: unknown command type '" + cmdType + "' (id=" + id + ")")
@@ -454,5 +457,44 @@ bool Function ExecuteGiveGold(int amount)
         return false
     endif
     player.AddItem(Gold001, amount, true)
+    return true
+EndFunction
+
+; Launches a random nearby NPC into a brief comedic ragdoll -- no CK
+; property needed, target is picked live via the engine's own actor search.
+bool Function ExecuteYeet()
+    Actor player = Game.GetPlayer()
+    if !player
+        return false
+    endif
+
+    ; FindRandomActor can hand back the player, a corpse, or someone the
+    ; player can't actually see get launched -- retry a few times rather
+    ; than yeet blind, same retry-on-miss shape as the cheese pickers above.
+    Actor target = None
+    int attempts = 0
+    while !target && attempts < 10
+        Actor candidate = Game.FindRandomActor(player, 1500.0)
+        if candidate && candidate != player && !candidate.IsDead() && candidate.HasLOS(player)
+            target = candidate
+        endif
+        attempts += 1
+    endwhile
+
+    if !target
+        return false
+    endif
+
+    ; 8-12 is a stumble/pop-into-the-air force, well below what causes real
+    ; fall damage or counts as a lethal hit.
+    player.PushActorAway(target, Utility.RandomFloat(8.0, 12.0))
+
+    ; PushActorAway doesn't go through the crime/hostile-spell system, but
+    ; the target's own AI can still read the shove as an attack and
+    ; retaliate or alert nearby witnesses -- clear both explicitly so a yeet
+    ; never turns into a bounty or a brawl.
+    target.StopCombat()
+    player.StopCombatAlarm()
+
     return true
 EndFunction

@@ -112,7 +112,12 @@ Copy-Item "Scripts\*.pex" "<SkyrimInstall>\Data\Scripts\" -Force
    `ScrollStormThrall`, `ChaosScrollWaterBreathing` →
    `ScrollWaterBreathing`, all vanilla `SCRL` editor IDs). `!buy
    cheesesplosion` reuses `ChaosCheeseItem1`-`4` (already set above) and
-   needs no separate property. Both actor properties are deliberately concrete
+   needs no separate property. `!buy yeet` also needs no property — it
+   picks its target live via `Game.FindRandomActor()` within 1500 units of
+   the player (retrying up to 10 times against ones that are dead, the
+   player themself, or lack line of sight), then `PushActorAway()`s them
+   with a mild 8-12 force and clears their combat/alarm state so the shove
+   doesn't turn into a fight or a bounty. Both actor properties are deliberately concrete
    `ActorBase` templates rather than `LeveledActor` lists — `LeveledActor`
    forms are both harder to place via `PlaceActorAtMe` (which needs a
    concrete `ActorBase`, not a leveled list — `PlaceAtMe` handles leveled

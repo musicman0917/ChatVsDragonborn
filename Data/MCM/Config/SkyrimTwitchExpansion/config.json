@@ -78,6 +78,13 @@
           "text": "Low Gravity — Price",
           "help": "Points cost for !buy lowgravity",
           "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 400 }
+        },
+        {
+          "type": "slider",
+          "id": "iYeetPrice:ChaosPrices",
+          "text": "Yeet — Price",
+          "help": "Points cost for !buy yeet — comedically launches a random nearby NPC",
+          "valueOptions": { "min": 0, "max": 2000, "step": 10, "sourceType": "ModSettingInt", "defaultValue": 120 }
         }
       ]
     },

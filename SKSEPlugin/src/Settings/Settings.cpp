@@ -50,6 +50,7 @@ namespace STE
                 { "chaos.scroll_storm_thrall.price", "220" },
                 { "chaos.scroll_water_breathing.price", "100" },
                 { "chaos.cheese_splosion.price", "150" },
+                { "chaos.yeet.price", "120" },
                 { "poll.interval_minutes", "15" },
                 { "poll.duration_seconds", "60" },
             });
