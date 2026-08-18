@@ -1,1 +1,588 @@
-&lt;!doctype html&gt;
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat vs. Dragonborn — Commands &amp; Points</title>
+<meta name="description" content="Chaos commands and the viewer points economy for the Chat vs. Dragonborn Twitch integration.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%E1%9A%B1</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stone-950:#100e10;
+    --stone-900:#161316;
+    --stone-850:#1b181b;
+    --stone-800:#242024;
+    --stone-700:#3a3438;
+    --stone-600:#544c50;
+    --bone:#d9cdb4;
+    --bone-dim:#a89b85;
+    --ember:#e0883c;
+    --ember-bright:#ffb35c;
+    --ember-dim:#8a5527;
+    --live:#7fae7a;
+    --beta:#c99a4a;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 700px at 12% -10%, #201a16 0%, transparent 55%),
+      radial-gradient(900px 600px at 90% 10%, #17151a 0%, transparent 60%),
+      var(--stone-950);
+    color:var(--bone);
+    font-family:'Crimson Pro', Georgia, serif;
+    font-size:19px;
+    line-height:1.65;
+  }
+  ::selection{ background:var(--ember-dim); color:var(--stone-950); }
+  a{ color:var(--ember-bright); text-decoration-color:var(--ember-dim); text-underline-offset:3px; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--ember-bright); outline-offset:3px; }
+
+  .stone-texture{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.012) 0 2px, transparent 2px 6px),
+      repeating-linear-gradient(25deg, rgba(0,0,0,.15) 0 1px, transparent 1px 5px);
+    mix-blend-mode:overlay;
+  }
+
+  .wrap{ position:relative; z-index:1; max-width:920px; margin:0 auto; padding:0 24px 100px; }
+
+  .display{ font-family:'Almendra', Georgia, serif; }
+
+  header.hero{
+    padding:88px 0 64px;
+    border-bottom:1px solid var(--stone-700);
+  }
+  .hero-eyebrow{
+    display:flex; align-items:center; gap:14px;
+    font-size:.8rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--bone-dim); margin-bottom:22px;
+  }
+  .hero-eyebrow .rule{ flex:0 0 44px; height:1px; background:var(--stone-600); }
+  h1.title{
+    font-family:'Almendra', Georgia, serif;
+    font-weight:700;
+    font-size:clamp(2.4rem, 6vw, 4rem);
+    line-height:1.05;
+    margin:0 0 20px;
+    text-wrap:balance;
+    color:var(--bone);
+    max-width:14ch;
+  }
+  h1.title .ignite{
+    color:var(--ember);
+    text-shadow: 0 0 18px rgba(224,136,60,.0);
+    animation: ignite 2.2s ease-out .3s forwards;
+  }
+  @keyframes ignite{
+    0%   { color:var(--bone-dim); text-shadow:0 0 0 rgba(224,136,60,0); }
+    55%  { color:var(--ember-bright); text-shadow:0 0 28px rgba(255,179,92,.75), 0 0 6px rgba(255,179,92,.6); }
+    100% { color:var(--ember); text-shadow:0 0 16px rgba(224,136,60,.4); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    h1.title .ignite{ animation:none; color:var(--ember); text-shadow:0 0 16px rgba(224,136,60,.4); }
+  }
+  p.lede{
+    max-width:52ch;
+    color:var(--bone-dim);
+    font-size:1.15rem;
+    margin:0;
+  }
+
+  section{ padding:60px 0; border-bottom:1px solid var(--stone-700); }
+  section:last-of-type{ border-bottom:none; }
+
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:24px;
+    margin-bottom:34px; flex-wrap:wrap;
+  }
+  h2.section-title{
+    font-family:'Almendra', Georgia, serif;
+    font-weight:700;
+    font-size:1.65rem;
+    color:var(--bone);
+    margin:0;
+  }
+  .section-note{ color:var(--bone-dim); font-size:.95rem; font-style:italic; max-width:36ch; text-align:right; }
+
+  h3.cmd-subhead{
+    font-family:'Almendra', Georgia, serif;
+    font-weight:400;
+    font-size:1.05rem;
+    color:var(--ember-dim);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin:40px 0 14px;
+  }
+  h3.cmd-subhead:first-of-type{ margin-top:0; }
+
+  code{
+    font-family:'Crimson Pro', Georgia, serif;
+    font-weight:600;
+    background:var(--stone-800);
+    border:1px solid var(--stone-700);
+    color:var(--ember-bright);
+    padding:.05em .5em;
+    font-size:.94em;
+  }
+
+  .steps{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1px;
+    background:var(--stone-700);
+    border:1px solid var(--stone-700);
+  }
+  .steps > div{ background:var(--stone-900); padding:22px 24px; }
+  .steps .num{
+    font-family:'Almendra', Georgia, serif; color:var(--ember); font-size:1.3rem; display:block; margin-bottom:8px;
+  }
+  .steps p{ margin:0; color:var(--bone-dim); }
+  .steps strong{ color:var(--bone); }
+
+  .cmd-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:1px;
+    background:var(--stone-700);
+    border:1px solid var(--stone-700);
+  }
+  .cmd-card{
+    background:var(--stone-900);
+    padding:22px 22px 20px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .cmd-card .rune{
+    font-size:1.3rem; color:var(--ember-dim); line-height:1;
+  }
+  .cmd-card .cmd-name{
+    font-family:'Almendra', Georgia, serif;
+    font-size:1.15rem;
+    color:var(--bone);
+  }
+  .cmd-card .price{
+    font-variant-numeric: tabular-nums;
+    color:var(--ember-bright);
+    font-weight:600;
+    font-size:.95rem;
+    letter-spacing:.02em;
+  }
+  .cmd-card .desc{ color:var(--bone-dim); font-size:.96rem; flex:1; }
+  .tag{
+    align-self:flex-start;
+    font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:3px 8px 2px;
+    border:1px solid currentColor;
+  }
+  .tag.live{ color:var(--live); }
+  .tag.beta{ color:var(--beta); }
+
+  .legend{ color:var(--bone-dim); font-size:.92rem; margin-top:20px; }
+  .legend .tag{ display:inline-block; margin-right:6px; vertical-align:middle; }
+
+  .tier-ledger{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1px;
+    background:var(--stone-700); border:1px solid var(--stone-700); margin-bottom:44px;
+  }
+  .tier-ledger > div{ background:var(--stone-900); padding:24px; text-align:left; }
+  .tier-ledger .amt{
+    font-family:'Almendra', Georgia, serif; font-size:2rem; color:var(--ember-bright);
+    font-variant-numeric: tabular-nums; display:block; margin-bottom:6px;
+  }
+  .tier-ledger .who{ color:var(--bone); font-weight:600; }
+  .tier-ledger .cond{ color:var(--bone-dim); font-size:.88rem; margin-top:4px; }
+
+  .ledger-wrap{ overflow-x:auto; border:1px solid var(--stone-700); }
+  table.ledger{
+    width:100%; border-collapse:collapse; min-width:520px;
+  }
+  table.ledger th, table.ledger td{
+    padding:14px 20px; text-align:left; border-bottom:1px solid var(--stone-700);
+  }
+  table.ledger thead th{
+    font-family:'Almendra', Georgia, serif; font-weight:400;
+    color:var(--bone-dim); font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;
+    background:var(--stone-900);
+  }
+  table.ledger tbody{ background:var(--stone-950); }
+  table.ledger tr:last-child td{ border-bottom:none; }
+  table.ledger td.amount{
+    font-variant-numeric: tabular-nums; color:var(--ember-bright); font-weight:600; white-space:nowrap;
+  }
+  table.ledger td.note{ color:var(--bone-dim); font-size:.92rem; }
+
+  footer{
+    padding:48px 0 0;
+    color:var(--bone-dim); font-size:.9rem;
+    display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
+  }
+  footer .runes{ letter-spacing:.3em; color:var(--stone-600); }
+</style>
+</head>
+<body>
+<div class="stone-texture"></div>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-eyebrow"><span class="rule"></span> a word wall for the chat</div>
+    <h1 class="title">Chat vs. <span class="ignite">Dragonborn</span></h1>
+    <p class="lede">Every command carved on this wall can be called from chat. Read on to learn how points are earned, and what each word unleashes.</p>
+  </header>
+
+  <section id="how-it-works">
+    <div class="section-head">
+      <h2 class="section-title">How It Works</h2>
+    </div>
+    <div class="steps">
+      <div><span class="num">I.</span><p><strong>Earn points</strong> just by being in chat — no grinding required.</p></div>
+      <div><span class="num">II.</span><p>Spend them with <code>!buy &lt;action&gt;</code> to trigger something in-game, live.</p></div>
+      <div><span class="num">III.</span><p>The bot confirms in chat once the game reports your command went through.</p></div>
+    </div>
+  </section>
+
+  <section id="commands">
+    <div class="section-head">
+      <h2 class="section-title">Words on the Wall</h2>
+      <p class="section-note">Type <code>!buy</code> followed by an action. Prices are in points.</p>
+    </div>
+
+    <h3 class="cmd-subhead">Core Chaos</h3>
+    <div class="cmd-grid">
+      <div class="cmd-card">
+        <span class="rune">ᚱ</span>
+        <div class="cmd-name"><code>!buy ragdoll</code></div>
+        <div class="price">50 points</div>
+        <div class="desc">Knocks the Dragonborn clean off their feet.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛖ</span>
+        <div class="cmd-name"><code>!buy earthquake</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">Shakes the camera like the ground itself is angry.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛞ</span>
+        <div class="cmd-name"><code>!buy dragon</code></div>
+        <div class="price">1000 points</div>
+        <div class="desc">Summons a hostile dragon a short distance ahead of the Dragonborn.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚲ</span>
+        <div class="cmd-name"><code>!buy chickens</code></div>
+        <div class="price">200 points</div>
+        <div class="desc">Unleashes a swarm of chickens on the Dragonborn's position.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚺ</span>
+        <div class="cmd-name"><code>!buy cheese</code></div>
+        <div class="price">75 points</div>
+        <div class="desc">Buries the Dragonborn in 15–40 wheels of cheese, randomly chosen.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚨ</span>
+        <div class="cmd-name"><code>!buy addgold</code></div>
+        <div class="price">50 points</div>
+        <div class="desc">Gifts the Dragonborn a pile of gold, no strings attached.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛗ</span>
+        <div class="cmd-name"><code>!buy removegold</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">Pickpockets the Dragonborn's gold straight out of their coinpurse.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛟ</span>
+        <div class="cmd-name"><code>!buy invert</code></div>
+        <div class="price">300 points</div>
+        <div class="desc">Inverts the Dragonborn's controls for a short time.</div>
+        <span class="tag beta">Beta</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛚ</span>
+        <div class="cmd-name"><code>!buy lowgravity</code></div>
+        <div class="price">400 points</div>
+        <div class="desc">Turns on low gravity for a short time — moon-jump physics included.</div>
+        <span class="tag beta">Beta</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛜ</span>
+        <div class="cmd-name"><code>!buy cheesemageddon</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">The big brother of <code>!buy cheese</code> — 60–100 wheels at once.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛁ</span>
+        <div class="cmd-name"><code>!buy yeet</code></div>
+        <div class="price">120 points</div>
+        <div class="desc">Comedically launches a random nearby NPC into a stumbling pop-up — no fight, no bounty.</div>
+        <span class="tag beta">Beta</span>
+      </div>
+    </div>
+
+    <h3 class="cmd-subhead">Gold &amp; Item Grants</h3>
+    <div class="cmd-grid">
+      <div class="cmd-card">
+        <span class="rune">ᚠ</span>
+        <div class="cmd-name"><code>!buy give10gold</code></div>
+        <div class="price">10 points</div>
+        <div class="desc">Slips the Dragonborn a modest 10 gold.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚢ</span>
+        <div class="cmd-name"><code>!buy give100gold</code></div>
+        <div class="price">100 points</div>
+        <div class="desc">Hands over 100 gold.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚦ</span>
+        <div class="cmd-name"><code>!buy give1000gold</code></div>
+        <div class="price">1000 points</div>
+        <div class="desc">A serious windfall — 1000 gold, all at once.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚹ</span>
+        <div class="cmd-name"><code>!buy giveapples</code></div>
+        <div class="price">20 points</div>
+        <div class="desc">Grants an apple.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚷ</span>
+        <div class="cmd-name"><code>!buy givearrows</code></div>
+        <div class="price">40 points</div>
+        <div class="desc">Grants a quiver of 20 iron arrows.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚾ</span>
+        <div class="cmd-name"><code>!buy givebakedpotatoes</code></div>
+        <div class="price">20 points</div>
+        <div class="desc">Grants a baked potato.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛃ</span>
+        <div class="cmd-name"><code>!buy givediamond</code></div>
+        <div class="price">300 points</div>
+        <div class="desc">Grants a diamond.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛇ</span>
+        <div class="cmd-name"><code>!buy givedragonbone</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">Grants a dragon bone.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛈ</span>
+        <div class="cmd-name"><code>!buy givedragonscales</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">Grants dragon scales.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛉ</span>
+        <div class="cmd-name"><code>!buy givegoldingot</code></div>
+        <div class="price">100 points</div>
+        <div class="desc">Grants a gold ingot.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛊ</span>
+        <div class="cmd-name"><code>!buy giveironingot</code></div>
+        <div class="price">30 points</div>
+        <div class="desc">Grants an iron ingot.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛏ</span>
+        <div class="cmd-name"><code>!buy givepotatoes</code></div>
+        <div class="price">15 points</div>
+        <div class="desc">Grants 5 raw potatoes.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛒ</span>
+        <div class="cmd-name"><code>!buy givesilveringot</code></div>
+        <div class="price">60 points</div>
+        <div class="desc">Grants a silver ingot.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛞ</span>
+        <div class="cmd-name"><code>!buy givesoulgem</code></div>
+        <div class="price">120 points</div>
+        <div class="desc">Grants a common soul gem.</div>
+        <span class="tag live">Live</span>
+      </div>
+    </div>
+
+    <h3 class="cmd-subhead">Scrolls</h3>
+    <div class="cmd-grid">
+      <div class="cmd-card">
+        <span class="rune">ᛖ</span>
+        <div class="cmd-name"><code>!buy scrollblizzard</code></div>
+        <div class="price">200 points</div>
+        <div class="desc">Grants a Scroll of Blizzard.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛗ</span>
+        <div class="cmd-name"><code>!buy scrollflameatronach</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">Grants a Scroll of Conjure Flame Atronach.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛚ</span>
+        <div class="cmd-name"><code>!buy scrollfrostatronach</code></div>
+        <div class="price">150 points</div>
+        <div class="desc">Grants a Scroll of Conjure Frost Atronach.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛟ</span>
+        <div class="cmd-name"><code>!buy scrollstormatronach</code></div>
+        <div class="price">200 points</div>
+        <div class="desc">Grants a Scroll of Conjure Storm Atronach.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚱ</span>
+        <div class="cmd-name"><code>!buy scrollflamethrall</code></div>
+        <div class="price">180 points</div>
+        <div class="desc">Grants a Scroll of Flame Thrall.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚲ</span>
+        <div class="cmd-name"><code>!buy scrollfrostthrall</code></div>
+        <div class="price">180 points</div>
+        <div class="desc">Grants a Scroll of Frost Thrall.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚺ</span>
+        <div class="cmd-name"><code>!buy scrollharmony</code></div>
+        <div class="price">250 points</div>
+        <div class="desc">Grants a Scroll of Harmony.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᚨ</span>
+        <div class="cmd-name"><code>!buy scrollhysteria</code></div>
+        <div class="price">250 points</div>
+        <div class="desc">Grants a Scroll of Hysteria.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛁ</span>
+        <div class="cmd-name"><code>!buy scrollinvisibility</code></div>
+        <div class="price">220 points</div>
+        <div class="desc">Grants a Scroll of Invisibility.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛜ</span>
+        <div class="cmd-name"><code>!buy scrollmayhem</code></div>
+        <div class="price">300 points</div>
+        <div class="desc">Grants a Scroll of Mayhem.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛃ</span>
+        <div class="cmd-name"><code>!buy scrollstormthrall</code></div>
+        <div class="price">220 points</div>
+        <div class="desc">Grants a Scroll of Storm Thrall.</div>
+        <span class="tag live">Live</span>
+      </div>
+      <div class="cmd-card">
+        <span class="rune">ᛇ</span>
+        <div class="cmd-name"><code>!buy scrollwaterbreathing</code></div>
+        <div class="price">100 points</div>
+        <div class="desc">Grants a Scroll of Water Breathing.</div>
+        <span class="tag live">Live</span>
+      </div>
+    </div>
+
+    <p class="legend"><span class="tag live">Live</span> effects fire in-game as described. <span class="tag beta">Beta</span> commands are purchasable and priced, but still being tuned — expect rough edges.</p>
+  </section>
+
+  <section id="points">
+    <div class="section-head">
+      <h2 class="section-title">The Ledger</h2>
+      <p class="section-note">How points are earned before they're spent.</p>
+    </div>
+
+    <div class="tier-ledger">
+      <div>
+        <span class="amt">250</span>
+        <div class="who">Everyone</div>
+        <div class="cond">Starting balance, first time you speak in chat.</div>
+      </div>
+      <div>
+        <span class="amt">500</span>
+        <div class="who">Followers</div>
+        <div class="cond">One-time bonus, applied automatically once confirmed.</div>
+      </div>
+      <div>
+        <span class="amt">1000</span>
+        <div class="who">VIPs, mods &amp; broadcaster</div>
+        <div class="cond">Starting balance from the first message.</div>
+      </div>
+    </div>
+
+    <div class="ledger-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>Source</th><th>Reward</th><th>Note</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Active in chat</td>
+            <td class="amount">10 / min</td>
+            <td class="note">Pauses if you go quiet for a while — speak up to keep it flowing.</td>
+          </tr>
+          <tr>
+            <td>New sub / resub</td>
+            <td class="amount">500 – 1500</td>
+            <td class="note">Tier 1 / 2 / 3 respectively; Prime counts as tier 1.</td>
+          </tr>
+          <tr>
+            <td>Gifting a sub</td>
+            <td class="amount">500 – 1500</td>
+            <td class="note">Paid to you, the gifter — once per recipient, even in a mass gift.</td>
+          </tr>
+          <tr>
+            <td>Cheering bits</td>
+            <td class="amount">1 / bit</td>
+            <td class="note">Straight conversion, no minimum.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div>Chat vs. Dragonborn — a Twitch chaos-command integration for Skyrim.</div>
+    <div class="runes">ᚠᚢᚦᚨᚱᚲ</div>
+  </footer>
+
+</div>
+</body>
+</html>
