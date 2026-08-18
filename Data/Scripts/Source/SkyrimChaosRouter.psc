@@ -539,13 +539,13 @@ bool Function ExecuteYeet()
         return false
     endif
 
-    ; FindRandomActor can hand back the player, a corpse, or someone the
+    ; FindRandomActorFromRef can hand back the player, a corpse, or someone the
     ; player can't actually see get launched -- retry a few times rather
     ; than yeet blind, same retry-on-miss shape as the cheese pickers above.
     Actor target = None
     int attempts = 0
     while !target && attempts < 10
-        Actor candidate = Game.FindRandomActor(player, 1500.0)
+        Actor candidate = Game.FindRandomActorFromRef(player, 1500.0)
         if candidate && candidate != player && !candidate.IsDead() && candidate.HasLOS(player)
             target = candidate
         endif
@@ -606,7 +606,7 @@ bool Function ExecuteRagdollBlast()
     int hitCount = 0
     int attempts = 0
     while hitCount < 5 && attempts < 20
-        Actor candidate = Game.FindRandomActor(player, 800.0)
+        Actor candidate = Game.FindRandomActorFromRef(player, 800.0)
         if candidate && candidate != player && !candidate.IsDead() && !AlreadyHit(hit, hitCount, candidate)
             hit[hitCount] = candidate
             hitCount += 1
@@ -678,7 +678,7 @@ bool Function ExecuteDrunkVision()
     if !player || !ChaosDrunkSpell
         return false
     endif
-    player.Cast(ChaosDrunkSpell, player)
+    ChaosDrunkSpell.Cast(player, player)
     return true
 EndFunction
 
@@ -710,7 +710,7 @@ bool Function ExecuteWildMagic()
     Actor target = None
     int targetAttempts = 0
     while !target && targetAttempts < 10
-        Actor candidate = Game.FindRandomActor(player, 1500.0)
+        Actor candidate = Game.FindRandomActorFromRef(player, 1500.0)
         if candidate && candidate != player && !candidate.IsDead() && candidate.HasLOS(player)
             target = candidate
         endif
@@ -721,7 +721,7 @@ bool Function ExecuteWildMagic()
         return false
     endif
 
-    player.Cast(chosenSpell, target)
+    chosenSpell.Cast(player, target)
     return true
 EndFunction
 

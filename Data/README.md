@@ -43,12 +43,22 @@ build them locally or as part of a release pipeline.
 `STE_MCMConfig.psc` extends MCM Helper's own `MCM_ConfigBase`, so its script
 source (wherever MCM Helper's own mod files are installed — typically
 alongside its own `Scripts\Source\` under your Skyrim `Data\`) needs to be on
-the `-i` import list too, alongside the two paths below.
+the `-i` import list too, alongside the paths below.
+
+`SkyrimChaosRouter.psc`'s `ExecuteSuperJump()`/`RevertSuperJump()` call
+`Game.SetGameSettingFloat()` — a real native function, but one only declared
+in SKSE's own extended `Game.psc`, not the vanilla one from Skyrim's
+`Scripts.zip`. Without SKSE's own `Scripts\Source` folder on the import list
+too, the compiler fails with "SetGameSettingFloat is not a function or does
+not exist" even though it genuinely exists at runtime. That folder ships
+inside the SKSE64 download package itself (the same zip used to install
+SKSE, not anything already present in your `Data\` folder) — extract it
+somewhere and add it as a fourth import path.
 
 ```powershell
-PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-PapyrusCompiler.exe Scripts\Source\STE_MCMConfig.psc      -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>;<SKSE's own Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>;<SKSE's own Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\STE_MCMConfig.psc      -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>;<SKSE's own Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
 ```
 
 The compiled `.pex` files also need to be copied into
