@@ -48,17 +48,20 @@ the `-i` import list too, alongside the paths below.
 `SkyrimChaosRouter.psc`'s `ExecuteSuperJump()`/`RevertSuperJump()` call
 `Game.SetGameSettingFloat()` — a real native function, but one only declared
 in SKSE's own extended `Game.psc`, not the vanilla one from Skyrim's
-`Scripts.zip`. Without SKSE's own `Scripts\Source` folder on the import list
-too, the compiler fails with "SetGameSettingFloat is not a function or does
-not exist" even though it genuinely exists at runtime. That folder ships
-inside the SKSE64 download package itself (the same zip used to install
-SKSE, not anything already present in your `Data\` folder) — extract it
-somewhere and add it as a fourth import path.
+`Scripts.zip`. SKSE's installer places its own extended script sources
+directly at `<SkyrimInstall>\Data\Scripts\Source\` (note the folder order —
+`Scripts\Source`, the opposite of Bethesda's own `Source\Scripts` vanilla
+layout used elsewhere in this doc) — no separate download needed if SKSE is
+already installed. That path must come **before** the vanilla
+`Data\Source\Scripts` path in the `-i` list: the compiler resolves each
+imported script name (e.g. `Game.psc`) against the first folder that has a
+match, so if vanilla's copy (which lacks `SetGameSettingFloat`) is listed
+first, it wins and shadows SKSE's extended one even though both are present.
 
 ```powershell
-PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>;<SKSE's own Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>;<SKSE's own Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
-PapyrusCompiler.exe Scripts\Source\STE_MCMConfig.psc      -i="Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>;<SKSE's own Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\STE_Native.psc         -i="Scripts\Source;<SkyrimInstall>\Data\Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\SkyrimChaosRouter.psc  -i="Scripts\Source;<SkyrimInstall>\Data\Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
+PapyrusCompiler.exe Scripts\Source\STE_MCMConfig.psc      -i="Scripts\Source;<SkyrimInstall>\Data\Scripts\Source;<SkyrimInstall>\Data\Source\Scripts;<MCM Helper's Scripts\Source>" -o="Scripts" -flags="<SkyrimInstall>\Data\Source\Scripts\TESV_Papyrus_Flags.flg"
 ```
 
 The compiled `.pex` files also need to be copied into
